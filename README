@@ -8,3 +8,16 @@ DOF and probe creation. Other dynamic language bindings should follow.
 [1] https://github.com/chrisa/ruby-dtrace
 [2] https://github.com/chrisa/perl-dtrace
 [3] https://github.com/chrisa/node-dtrace-provider
+
+Status:
+
+The implementation here works as shown in test_usdt.c on Mac OS X, 64
+bit only (despite the #ifdefs for Solaris in places).
+
+To do:
+
+ * break out platform-specific parts
+ * break up usdt.c
+ * add support for Solaris i386 and x86_64
+ * add support for Mac OS X PowerPC
+ * add support for Solaris SPARC
