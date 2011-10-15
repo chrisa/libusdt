@@ -1,0 +1,10 @@
+This is "libusdt", an extraction into a C library of the common parts
+of ruby-dtrace[1], perl-dtrace[2] and node-dtrace-provider[3].
+
+Once this library is functional, those libraries will become bindings
+to this library, rather than containing their own implementations of
+DOF and probe creation. Other dynamic language bindings should follow.
+
+[1] https://github.com/chrisa/ruby-dtrace
+[2] https://github.com/chrisa/perl-dtrace
+[3] https://github.com/chrisa/node-dtrace-provider
