@@ -1,7 +1,7 @@
-CFLAGS = -g -O0 -Wall -pedantic
+CFLAGS = -g -O0 -Wall -Werror
 CC=cc
 
-objects = usdt.o
+objects = usdt.o usdt_dof_file.o usdt_probe.o usdt_tracepoints.o
 headers = usdt.h
 
 all: libusdt.a test_usdt

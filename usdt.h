@@ -12,13 +12,10 @@
 #include <malloc.h>
 #endif
     
-#ifdef __APPLE__	
 #define FUNC_SIZE 32
-#define IS_ENABLED_FUNC_LEN 12
-#else
-#define FUNC_SIZE 96
-#define IS_ENABLED_FUNC_LEN 32
-#endif
+
+extern void usdt_tracepoint_isenabled(void);
+extern void usdt_tracepoint_probe(void);
 
 typedef uint8_t usdt_argtype_t;
 #define USDT_ARGTYPE_NONE    0
@@ -37,7 +34,8 @@ typedef struct usdt_probe {
   uint32_t offidx;
   uint8_t nargc;
   uint8_t xargc;
-  void *addr;
+  int (*isenabled_addr)(void);
+  void *probe_addr;
   struct usdt_probe *next;
   usdt_argtype_t types[6];
 } usdt_probe_t;
@@ -46,6 +44,7 @@ void *usdt_probe_dof(usdt_probe_t *probe);
 uint32_t usdt_probe_offset(usdt_probe_t *probe, char *dof, uint8_t argc);
 uint32_t usdt_is_enabled_offset(usdt_probe_t *probe, char *dof);
 void usdt_create_tracepoints(usdt_probe_t *probe);
+int usdt_is_enabled(usdt_probe_t *probe);
 void usdt_fire_probe(usdt_probe_t *probe, int argc, void **argv);
 
 typedef struct usdt_probedef {
