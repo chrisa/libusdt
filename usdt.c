@@ -235,6 +235,7 @@ void usdt_provider_enable(usdt_provider_t *provider) {
         argv = type;
     }
 
+    probe->next     = NULL;
     probe->name     = usdt_strtab_add(strtab, pd->name);
     probe->func     = usdt_strtab_add(strtab, pd->function);
     probe->noffs    = 1;
