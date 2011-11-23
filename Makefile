@@ -8,6 +8,7 @@ all: libusdt.a test_usdt
 
 libusdt.a: $(objects) $(headers)
 	ar cru libusdt.a $(objects) 
+	ranlib -s libusdt.a
 
 test_usdt: libusdt.a test_usdt.o
 	$(CC) -g -o test_usdt libusdt.a test_usdt.o
