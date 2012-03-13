@@ -1,13 +1,22 @@
 #include "usdt.h"
 
 #include <stdlib.h>
+#include <stdarg.h>
+
+#include <stdio.h>
 
 void *usdt_probe_dof(usdt_probe_t *probe) {
   void *dof;
   dof_probe_t p;
   memset(&p, 0, sizeof(p));
 
+#ifdef __x86_64__
   p.dofpr_addr     = (uint64_t) probe->isenabled_addr;
+#elif __i386__
+  p.dofpr_addr     = (uint32_t) probe->isenabled_addr;
+#else
+  #error "only x86_64 and i386 supported"
+#endif
   p.dofpr_func     = probe->func;
   p.dofpr_name     = probe->name;
   p.dofpr_nargv    = probe->nargv;
@@ -54,6 +63,52 @@ void usdt_dof_section_add_data(usdt_dof_section_t *section, void *data, size_t l
   section->data = (char *) realloc((void *)section->data, section->size + length);
   (void) memcpy(section->data + section->size, data, length);
   section->size += length;
+}
+
+void usdt_create_probe_varargs(usdt_probedef_t *p, char *func, char *name, ...) {
+  va_list ap;
+  int i;
+  char *type;
+  
+  p->function = strdup(func);
+  p->name = strdup(name);
+
+  va_start(ap, name);
+  
+  for (i = 0; i < 6; i++) {
+    if ((type = va_arg(ap, char *)) != NULL) {
+      if (strncmp("char *", type, 6)) {
+        p->types[i] = USDT_ARGTYPE_STRING;
+      }
+      if (strncmp("int", type, 3)) {
+        p->types[i] = USDT_ARGTYPE_INTEGER;
+      }
+    }
+    else {
+      p->types[i] = USDT_ARGTYPE_NONE;
+    }
+  }
+}
+
+void usdt_create_probe(usdt_probedef_t *p, char *func, char *name, char **types) {
+  int i;
+  
+  p->function = strdup(func);
+  p->name = strdup(name);
+
+  for (i = 0; i < 6; i++) {
+    if (types[i] != NULL) {
+      if (strncmp("char *", types[i], 6) == 0) {
+        p->types[i] = USDT_ARGTYPE_STRING;
+      }
+      if (strncmp("int", types[i], 3) == 0) {
+        p->types[i] = USDT_ARGTYPE_INTEGER;
+      }
+    }
+    else {
+      p->types[i] = USDT_ARGTYPE_NONE;
+    }
+  }
 }
 
 void usdt_provider_add_probe(usdt_provider_t *provider, usdt_probedef_t *probedef) {
@@ -387,31 +442,31 @@ void usdt_fire_probe(usdt_probe_t *probe, int argc, void **nargv) {
 
   switch (probe->nargc) {
   case 0:
-    func0 = (void (*)())((uint64_t)probe->probe_addr); 
+    func0 = (void (*)())probe->probe_addr;
     (void)(*func0)();
     break;
   case 1:
-    func1 = (void (*)(void *))((uint64_t)probe->probe_addr); 
+    func1 = (void (*)(void *))probe->probe_addr;
     (void)(*func1)(argv[0]);
     break;
   case 2:
-    func2 = (void (*)(void *, void *))((uint64_t)probe->probe_addr); 
+    func2 = (void (*)(void *, void *))probe->probe_addr; 
     (void)(*func2)(argv[0], argv[1]);
     break;
   case 3:
-    func3 = (void (*)(void *, void *, void *))((uint64_t)probe->probe_addr); 
+    func3 = (void (*)(void *, void *, void *))probe->probe_addr; 
     (void)(*func3)(argv[0], argv[1], argv[2]);
     break;
   case 4:
-    func4 = (void (*)(void *, void *, void *, void *))((uint64_t)probe->probe_addr); 
+    func4 = (void (*)(void *, void *, void *, void *))probe->probe_addr; 
     (void)(*func4)(argv[0], argv[1], argv[2], argv[3]);
     break;
   case 5:
-    func5 = (void (*)(void *, void *, void *, void *, void *))((uint64_t)probe->probe_addr); 
+    func5 = (void (*)(void *, void *, void *, void *, void *))probe->probe_addr; 
     (void)(*func5)(argv[0], argv[1], argv[2], argv[3], argv[4]);
     break;
   case 6:
-    func6 = (void (*)(void *, void *, void *, void *, void *, void *))((uint64_t)probe->probe_addr); 
+    func6 = (void (*)(void *, void *, void *, void *, void *, void *))probe->probe_addr; 
     (void)(*func6)(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5]);
     break;
   }

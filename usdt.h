@@ -50,12 +50,14 @@ void usdt_fire_probe(usdt_probe_t *probe, int argc, void **argv);
 typedef struct usdt_probedef {
   char *name;
   char *function;
-  usdt_argtype_t types[7];
+  usdt_argtype_t types[6];
   struct usdt_probe *probe;
   struct usdt_probedef *next;
 } usdt_probedef_t;
 
 uint8_t usdt_probedef_argc(usdt_probedef_t *probedef);
+void usdt_create_probe_varargs(usdt_probedef_t *probedef, char *func, char *name, ...);
+void usdt_create_probe(usdt_probedef_t *probedef, char *func, char *name, char **types);
 
 typedef struct usdt_dof_section {
   dof_secidx_t index;
