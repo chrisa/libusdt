@@ -1,5 +1,7 @@
 #include "usdt.h"
 
+#ifdef __APPLE__
+
 uint32_t usdt_probe_offset(usdt_probe_t *probe, char *dof, uint8_t argc) {
 #ifdef __x86_64__
   return (uint32_t) ((uint64_t) probe->probe_addr - (uint64_t) dof + 2);
@@ -19,6 +21,18 @@ uint32_t usdt_is_enabled_offset(usdt_probe_t *probe, char *dof) {
   #error "only x86_64 and i386 supported"
 #endif
 }
+
+#else /* solaris */
+
+uint32_t usdt_probe_offset(usdt_probe_t *probe, char *dof, uint8_t argc) {
+  return 6;
+}
+
+uint32_t usdt_is_enabled_offset(usdt_probe_t *probe, char *dof) {
+  return 6;
+}
+
+#endif
 
 void usdt_create_tracepoints(usdt_probe_t *probe) {
   probe->isenabled_addr = valloc(FUNC_SIZE);

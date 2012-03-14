@@ -39,8 +39,10 @@ int main(int argc, char **argv) {
   usdt_provider_add_probe(&provider, &probedef);
   usdt_provider_enable(&provider);
 
-  if (usdt_is_enabled(probedef.probe))
-          usdt_fire_probe(probedef.probe, (argc-3), (void **)args);
+  if (usdt_is_enabled(probedef.probe)) {
+    fprintf(stderr, "firing\n");
+    usdt_fire_probe(probedef.probe, (argc-3), (void **)args);
+  }
 
   return 0;
 }

@@ -1,9 +1,13 @@
-MAC_BUILD=universal
-CFLAGS= -g -O0 -Wall -Werror -arch i386 -arch x86_64
+MAC_BUILD=
+CFLAGS= -g -O0 -Wall -Werror
 CC=cc
 ARCH=$(shell uname -m)
 
-objects = usdt.o usdt_dof_file.o usdt_probe.o usdt_tracepoints.o
+ifeq ($(MAC_BUILD), universal)
+CFLAGS += -arch i386 -arch x86_64
+endif
+
+objects = usdt.o usdt_dof_file.o usdt_tracepoints.o usdt_probe.o
 headers = usdt.h
 
 .c.o: $(headers)
@@ -32,19 +36,16 @@ endif
 
 endif
 
-fat_libusdt.a: $(objects) $(headers)
-	ar cru fat_libusdt.a $(objects) 
-
-libusdt.a: fat_libusdt.a
-	cp fat_libusdt.a libusdt.a
-	ranlib -s libusdt.a
+libusdt.a: $(objects) $(headers)
+	ar cru libusdt.a $(objects) 
+	ranlib libusdt.a
 
 ifeq ($(MAC_BUILD), universal)
 test_usdt: libusdt.a test_usdt.o
 	$(CC) -arch i386 -arch x86_64 -o test_usdt libusdt.a test_usdt.o
 else
 test_usdt: libusdt.a test_usdt.o
-	$(CC) -o test_usdt libusdt.a test_usdt.o
+	$(CC) -o test_usdt test_usdt.o libusdt.a 
 endif
 
 clean:

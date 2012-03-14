@@ -7,7 +7,9 @@
         .text
 
         .align  4, 0x90
+        .globl usdt_tracepoint_isenabled
         .globl _usdt_tracepoint_isenabled
+usdt_tracepoint_isenabled:
 _usdt_tracepoint_isenabled:
         pushq   %rbp
         movq    %rsp, %rbp
@@ -18,7 +20,9 @@ _usdt_tracepoint_isenabled:
         ret
 
         .align  4, 0x90
+        .globl usdt_tracepoint_probe
         .globl _usdt_tracepoint_probe
+usdt_tracepoint_probe:
 _usdt_tracepoint_probe:
         pushq   %rbp
         movq    %rsp, %rbp
