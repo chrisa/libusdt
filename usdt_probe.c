@@ -3,11 +3,11 @@
 #ifdef __APPLE__
 
 uint32_t usdt_probe_offset(usdt_probe_t *probe, char *dof, uint8_t argc) {
-#ifdef __x86_64__
   int offset = (probe_tracepoint - usdt_tracepoint_probe);
+#ifdef __x86_64__
   return (uint32_t) ((uint64_t) probe->probe_addr - (uint64_t) dof + offset);
 #elif __i386__
-  return (uint32_t) ((uint32_t) probe->probe_addr - (uint32_t) dof + 6);
+  return (uint32_t) ((uint32_t) probe->probe_addr - (uint32_t) dof + offset);
 #else
   #error "only x86_64 and i386 supported"
 #endif
