@@ -9,7 +9,6 @@ use Test::More qw/ no_plan /;
 my $arch;
 if (scalar @ARGV == 1) {
     $arch = $ARGV[0];
-    diag "running with arch -$arch";
 }
 
 run_tests('c', 'a');
@@ -56,9 +55,12 @@ sub run_dtrace {
     my ($func, $name, @types) = @_;
     my $d = gen_d(@types);
 
-    my $test = "./test_usdt $func $name " . (join ' ', @types);
+    my $test;
     if (defined $arch) {
-        $test = "arch -$arch " . $test;
+        $test = "./test_usdt$arch $func $name " . (join ' ', @types);
+    }
+    else {
+        $test = "./test_usdt $func $name " . (join ' ', @types);
     }
 
     my @cmd = ('dtrace', '-Zn', $d, '-c', $test);
