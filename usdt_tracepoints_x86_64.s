@@ -22,10 +22,35 @@ _usdt_tracepoint_isenabled:
         .align  4, 0x90
         .globl usdt_tracepoint_probe
         .globl _usdt_tracepoint_probe
+        .globl probe_tracepoint
+        .globl _probe_tracepoint
 usdt_tracepoint_probe:
 _usdt_tracepoint_probe:
         pushq   %rbp
         movq    %rsp, %rbp
+        movl    %edi, %ebx        // argc  -> %ebx
+        movq    %rsi, %r11        // nargv -> %r11
+        cmpl    $0,%ebx
+        cmovge  (%r11),%rdi
+        dec     %ebx
+        cmpl    $0,%ebx
+        cmovge  8(%r11),%rsi
+        dec     %ebx
+        cmpl    $0,%ebx
+        cmovge  16(%r11),%rdx
+        dec     %ebx
+        cmpl    $0,%ebx
+        cmovge  24(%r11),%rcx
+        dec     %ebx
+        cmpl    $0,%ebx
+        cmovge  32(%r11),%r8
+        dec     %ebx
+        cmpl    $0,%ebx
+        cmovge  40(%r11),%r9
+        nop
+        nop
+probe_tracepoint:
+_probe_tracepoint:
         nop
         nop
         nop

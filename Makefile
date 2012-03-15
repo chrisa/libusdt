@@ -15,10 +15,10 @@ headers = usdt.h
 all: libusdt.a test_usdt
 
 ifeq ($(MAC_BUILD), universal)
-usdt_tracepoints_i386.o:
+usdt_tracepoints_i386.o: usdt_tracepoints_i386.s
 	as -arch i386 -o usdt_tracepoints_i386.o usdt_tracepoints_i386.s
 
-usdt_tracepoints_x86_64.o:
+usdt_tracepoints_x86_64.o: usdt_tracepoints_x86_64.s
 	as -arch x86_64 -o usdt_tracepoints_x86_64.o usdt_tracepoints_x86_64.s
 
 usdt_tracepoints.o: usdt_tracepoints_i386.o usdt_tracepoints_x86_64.o
@@ -27,10 +27,10 @@ usdt_tracepoints.o: usdt_tracepoints_i386.o usdt_tracepoints_x86_64.o
 else
 
 ifeq ($(ARCH), x86_64)
-usdt_tracepoints.o:
+usdt_tracepoints.o: usdt_tracepoints_x86_64.s
 	as -o usdt_tracepoints.o usdt_tracepoints_x86_64.s
 else
-usdt_tracepoints.o:
+usdt_tracepoints.o: usdt_tracepoints_i386.s
 	as -o usdt_tracepoints.o usdt_tracepoints_i386.s
 endif
 
@@ -42,10 +42,10 @@ libusdt.a: $(objects) $(headers)
 
 ifeq ($(MAC_BUILD), universal)
 test_usdt: libusdt.a test_usdt.o
-	$(CC) -arch i386 -arch x86_64 -o test_usdt libusdt.a test_usdt.o
+	$(CC) $(CFLAGS) -arch i386 -arch x86_64 -o test_usdt libusdt.a test_usdt.o
 else
 test_usdt: libusdt.a test_usdt.o
-	$(CC) -o test_usdt test_usdt.o libusdt.a 
+	$(CC) $(CFLAGS) -o test_usdt test_usdt.o libusdt.a 
 endif
 
 clean:
@@ -55,7 +55,13 @@ clean:
 	rm -f fat_libusdt.a
 	rm -f test_usdt
 
+ifeq ($(MAC_BUILD), universal)
+test: test_usdt
+	sudo prove test.pl :: x86_64
+	sudo prove test.pl :: i386
+else
 test: test_usdt
 	sudo prove test.pl
+endif
 
 .PHONY: clean test

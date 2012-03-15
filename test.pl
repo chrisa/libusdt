@@ -6,6 +6,12 @@ use Symbol 'gensym';
 use IO::Handle;
 use Test::More qw/ no_plan /;
 
+my $arch;
+if (scalar @ARGV == 1) {
+    $arch = $ARGV[0];
+    diag "running with arch -$arch";
+}
+
 run_tests('c', 'a');
 run_tests('i', 1);
 
@@ -51,8 +57,12 @@ sub run_dtrace {
     my $d = gen_d(@types);
 
     my $test = "./test_usdt $func $name " . (join ' ', @types);
+    if (defined $arch) {
+        $test = "arch -$arch " . $test;
+    }
+
     my @cmd = ('dtrace', '-Zn', $d, '-c', $test);
-    
+
     my ($wtr, $rdr, $err);
     $err = gensym;
     my $pid = open3($wtr, $rdr, $err, @cmd);
@@ -67,5 +77,5 @@ sub run_dtrace {
     }
 
     my ($header, $output) = ($rdr->getline, $rdr->getline);
-    return ($status, $output);
+    return ($status, $output || '');
 }

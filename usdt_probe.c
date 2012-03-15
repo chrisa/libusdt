@@ -4,7 +4,8 @@
 
 uint32_t usdt_probe_offset(usdt_probe_t *probe, char *dof, uint8_t argc) {
 #ifdef __x86_64__
-  return (uint32_t) ((uint64_t) probe->probe_addr - (uint64_t) dof + 2);
+  int offset = (probe_tracepoint - usdt_tracepoint_probe);
+  return (uint32_t) ((uint64_t) probe->probe_addr - (uint64_t) dof + offset);
 #elif __i386__
   return (uint32_t) ((uint32_t) probe->probe_addr - (uint32_t) dof + 6);
 #else
@@ -25,7 +26,8 @@ uint32_t usdt_is_enabled_offset(usdt_probe_t *probe, char *dof) {
 #else /* solaris */
 
 uint32_t usdt_probe_offset(usdt_probe_t *probe, char *dof, uint8_t argc) {
-  return 6;
+  int offset = (probe_tracepoint - usdt_tracepoint_probe);
+  return offset;
 }
 
 uint32_t usdt_is_enabled_offset(usdt_probe_t *probe, char *dof) {

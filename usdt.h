@@ -16,6 +16,7 @@
 
 extern void usdt_tracepoint_isenabled(void);
 extern void usdt_tracepoint_probe(void);
+extern void probe_tracepoint(void);
 
 typedef uint8_t usdt_argtype_t;
 #define USDT_ARGTYPE_NONE    0

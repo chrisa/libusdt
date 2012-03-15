@@ -418,56 +418,8 @@ int usdt_is_enabled(usdt_probe_t *probe) {
 }
 
 void usdt_fire_probe(usdt_probe_t *probe, int argc, void **nargv) {
-  void *argv[6];
-  int i;
+  void (*func0)(int, void **);
 
-  void (*func0)();
-  void (*func1)(void *);
-  void (*func2)(void *, void *);
-  void (*func3)(void *, void *, void *);
-  void (*func4)(void *, void *, void *, void *);
-  void (*func5)(void *, void *, void *, void *, void *);
-  void (*func6)(void *, void *, void *, void *, void *, void *);
-  
-  for (i = 0; i < probe->nargc; i++) {
-    if (probe->types[i] == USDT_ARGTYPE_STRING) {
-      /* char * */
-      argv[i] = (void *)(char *) nargv[i];
-    }
-    else {
-      /* int */
-      argv[i] = (void *)(long) nargv[i];
-    }
-  }
-
-  switch (probe->nargc) {
-  case 0:
-    func0 = (void (*)())probe->probe_addr;
-    (void)(*func0)();
-    break;
-  case 1:
-    func1 = (void (*)(void *))probe->probe_addr;
-    (void)(*func1)(argv[0]);
-    break;
-  case 2:
-    func2 = (void (*)(void *, void *))probe->probe_addr; 
-    (void)(*func2)(argv[0], argv[1]);
-    break;
-  case 3:
-    func3 = (void (*)(void *, void *, void *))probe->probe_addr; 
-    (void)(*func3)(argv[0], argv[1], argv[2]);
-    break;
-  case 4:
-    func4 = (void (*)(void *, void *, void *, void *))probe->probe_addr; 
-    (void)(*func4)(argv[0], argv[1], argv[2], argv[3]);
-    break;
-  case 5:
-    func5 = (void (*)(void *, void *, void *, void *, void *))probe->probe_addr; 
-    (void)(*func5)(argv[0], argv[1], argv[2], argv[3], argv[4]);
-    break;
-  case 6:
-    func6 = (void (*)(void *, void *, void *, void *, void *, void *))probe->probe_addr; 
-    (void)(*func6)(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5]);
-    break;
-  }
+  func0 = (void (*)())probe->probe_addr;
+  (void)(*func0)(argc, nargv);
 }
