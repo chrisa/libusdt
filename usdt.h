@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #endif
-    
+
 #define FUNC_SIZE 32
 
 extern void usdt_tracepoint_isenabled(void);
@@ -67,7 +67,7 @@ typedef struct usdt_dof_section {
   uint32_t align;
   uint64_t offset;
   uint64_t size;
-  uint32_t entsize;    
+  uint32_t entsize;
   size_t pad;
   struct usdt_dof_section *next;
   char *data;
@@ -84,7 +84,7 @@ typedef struct usdt_strtab {
   uint32_t align;
   uint64_t offset;
   uint64_t size;
-  uint32_t entsize;    
+  uint32_t entsize;
   size_t pad;
   int strindex;
   char *data;

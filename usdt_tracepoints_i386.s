@@ -3,7 +3,7 @@
  * is-enabled probes. These functions are copied for each probe
  * dynamically created.
  *
- */   
+ */
         .text
 
         .align 4, 0x90

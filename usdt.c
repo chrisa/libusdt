@@ -9,12 +9,12 @@ usdt_create_probe_varargs(usdt_probedef_t *p, char *func, char *name, ...)
         va_list ap;
         int i;
         char *type;
-  
+
         p->function = strdup(func);
         p->name = strdup(name);
 
         va_start(ap, name);
-  
+
         for (i = 0; i < 6; i++) {
                 if ((type = va_arg(ap, char *)) != NULL) {
                         if (strncmp("char *", type, 6)) {
@@ -34,7 +34,7 @@ void
 usdt_create_probe(usdt_probedef_t *p, char *func, char *name, char **types)
 {
         int i;
-  
+
         p->function = strdup(func);
         p->name = strdup(name);
 
@@ -56,7 +56,7 @@ void
 usdt_provider_add_probe(usdt_provider_t *provider, usdt_probedef_t *probedef)
 {
         usdt_probedef_t *pd;
-  
+
         probedef->next = NULL;
         if (provider->probedefs == NULL)
                 provider->probedefs = probedef;
@@ -71,10 +71,10 @@ usdt_probedef_argc(usdt_probedef_t *probedef)
 {
         uint8_t args = 0;
         uint8_t i;
-  
+
         for (i = 0; probedef->types[i] != USDT_ARGTYPE_NONE && i < 6; i++)
                 args++;
-  
+
         return args;
 }
 
@@ -89,11 +89,11 @@ usdt_provider_enable(usdt_provider_t *provider)
         usdt_dof_section_t *proffs;
         usdt_dof_section_t *prenoffs;
         usdt_dof_section_t *provider_s;
-  
+
         strtab = malloc(sizeof(*strtab));
         usdt_strtab_init(strtab, 0);
         usdt_strtab_add(strtab, provider->name);
-  
+
         if (provider->probedefs == NULL)
                 return;
 

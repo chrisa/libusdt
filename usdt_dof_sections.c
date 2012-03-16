@@ -13,19 +13,19 @@ usdt_dof_probes_sect(usdt_provider_t *provider, usdt_strtab_t *strtab)
         uint32_t argidx = 0;
         uint32_t offidx = 0;
         void *dof;
-        
+
         probes = malloc(sizeof(*probes));
         usdt_dof_section_init(probes, DOF_SECT_PROBES, 1);
-  
+
         for (pd = provider->probedefs; pd != NULL; pd = pd->next) {
                 argc = 0;
                 argv = 0;
 
                 probe = malloc(sizeof(*probe));
-    
+
                 for (i = 0; pd->types[i] != USDT_ARGTYPE_NONE && i < 6; i++) {
                         probe->types[i] = pd->types[i];
-      
+
                         switch(pd->types[i]) {
                         case USDT_ARGTYPE_INTEGER:
                                 type = usdt_strtab_add(strtab, "int");
@@ -34,7 +34,7 @@ usdt_dof_probes_sect(usdt_provider_t *provider, usdt_strtab_t *strtab)
                                 type = usdt_strtab_add(strtab, "char *");
                                 break;
                         }
-      
+
                         argc++;
                         if (argv == 0)
                                 argv = type;
@@ -52,14 +52,14 @@ usdt_dof_probes_sect(usdt_provider_t *provider, usdt_strtab_t *strtab)
                 probe->xargc    = argc;
                 probe->nargv    = argv;
                 probe->xargv    = argv;
-    
+
                 usdt_create_tracepoints(probe);
-    
+
                 argidx += argc;
                 offidx++;
-    
+
                 pd->probe = probe;
-    
+
                 if (provider->probes == NULL) {
                         provider->probes = probe;
                 }
@@ -97,7 +97,7 @@ usdt_dof_prargs_sect(usdt_provider_t *provider)
                 i = 0;
                 usdt_dof_section_add_data(prargs, &i, 1);
         }
-        
+
         return (prargs);
 }
 
@@ -111,12 +111,12 @@ usdt_dof_proffs_sect(usdt_provider_t *provider, char *dof)
         proffs = malloc(sizeof(*proffs));
         usdt_dof_section_init(proffs, DOF_SECT_PROFFS, 3);
         proffs->entsize = 4;
-  
+
         for (pd = provider->probedefs; pd != NULL; pd = pd->next) {
                 off = usdt_probe_offset(pd->probe, dof, usdt_probedef_argc(pd));
                 usdt_dof_section_add_data(proffs, &off, 4);
         }
-        
+
         return (proffs);
 }
 
@@ -144,10 +144,10 @@ usdt_dof_provider_sect(usdt_provider_t *provider)
 {
         usdt_dof_section_t *provider_s;
         dof_provider_t p;
-    
+
         provider_s = malloc(sizeof(*provider_s));
         usdt_dof_section_init(provider_s, DOF_SECT_PROVIDER, 5);
-  
+
         p.dofpv_strtab   = 0;
         p.dofpv_probes   = 1;
         p.dofpv_prargs   = 2;
@@ -169,8 +169,7 @@ usdt_dof_provider_sect(usdt_provider_t *provider)
         p.dofpv_argsattr = DOF_ATTR(DTRACE_STABILITY_EVOLVING,
                                     DTRACE_STABILITY_EVOLVING,
                                     DTRACE_STABILITY_EVOLVING);
-  
+
         usdt_dof_section_add_data(provider_s, &p, sizeof(p));
-        
         return (provider_s);
 }
