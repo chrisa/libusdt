@@ -3,13 +3,7 @@
 #ifdef __APPLE__
 
 uint32_t usdt_probe_offset(usdt_probe_t *probe, char *dof, uint8_t argc) {
-#ifdef __x86_64__
-  return (uint32_t) ((uint64_t) probe->probe_addr - (uint64_t) dof + 2);
-#elif __i386__
   return (uint32_t) ((uint32_t) probe->probe_addr - (uint32_t) dof + 2);
-#else
-  #error "only x86_64 and i386 supported"
-#endif
 }
 
 uint32_t usdt_is_enabled_offset(usdt_probe_t *probe, char *dof) {
@@ -38,7 +32,8 @@ void usdt_create_tracepoints(usdt_probe_t *probe) {
   probe->isenabled_addr = valloc(FUNC_SIZE);
   (void)mprotect((void *)probe->isenabled_addr, FUNC_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
   memcpy(probe->isenabled_addr, usdt_tracepoint_isenabled, FUNC_SIZE);
-  probe->probe_addr = probe->isenabled_addr + (probe_tracepoint - usdt_tracepoint_isenabled);
+
+  probe->probe_addr = probe->isenabled_addr + (usdt_tracepoint_probe - usdt_tracepoint_isenabled);
 }
 
 int usdt_is_enabled(usdt_probe_t *probe) {
@@ -46,5 +41,5 @@ int usdt_is_enabled(usdt_probe_t *probe) {
 }
 
 void usdt_fire_probe(usdt_probe_t *probe, int argc, void **nargv) {
-  usdt_tracepoint_probe(probe->probe_addr, argc, nargv);
+  usdt_probe_args(probe->probe_addr, argc, nargv);
 }

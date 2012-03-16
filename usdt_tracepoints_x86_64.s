@@ -9,6 +9,11 @@
         .align  4, 0x90
         .globl usdt_tracepoint_isenabled
         .globl _usdt_tracepoint_isenabled
+        .globl usdt_tracepoint_probe
+        .globl _usdt_tracepoint_probe
+        .globl usdt_probe_args
+        .globl _usdt_probe_args
+
 usdt_tracepoint_isenabled:
 _usdt_tracepoint_isenabled:
         pushq   %rbp
@@ -18,8 +23,8 @@ _usdt_tracepoint_isenabled:
         nop
         leave
         ret
-probe_tracepoint:
-_probe_tracepoint:
+usdt_tracepoint_probe:
+_usdt_tracepoint_probe:
         nop
         nop
         nop
@@ -28,13 +33,8 @@ _probe_tracepoint:
         leave
         ret
 
-        .align  4, 0x90
-        .globl usdt_tracepoint_probe
-        .globl _usdt_tracepoint_probe
-        .globl probe_tracepoint
-        .globl _probe_tracepoint
-usdt_tracepoint_probe:
-_usdt_tracepoint_probe:
+usdt_probe_args:
+_usdt_probe_args:
         pushq   %rbp
         movq    %rsp, %rbp
         movq    %rdi, %r12        // addr  -> %r12
