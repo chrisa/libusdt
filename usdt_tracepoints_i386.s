@@ -31,22 +31,24 @@ _usdt_tracepoint_probe:
         movl    %esp,%ebp
         subl    $8,%esp
         subl    $8,%esp
-        movl    8(%ebp),%ecx
+        movl    8(%ebp),%ebx    // addr -> %ebx
+        movl    0xc(%ebp),%ecx  // argc -> %ecx
         test    %ecx,%ecx
-        je      tp
-args:   
-        movl    %ecx,%eax
+        jne     args
+        jmp     *%ebx
+args:   movl    %ecx,%eax
         sal     $2,%eax
         subl    $4,%eax
-        addl    0xc(%ebp),%eax
+        addl    0x10(%ebp),%eax
         pushl   (%eax)
         dec     %ecx
         jne     args
-tp:     
-        nop
-        nop
+        jmp     *%ebx
+
 probe_tracepoint:
 _probe_tracepoint:
+        nop
+        nop
         nop
         nop
         nop

@@ -28,8 +28,9 @@ usdt_tracepoint_probe:
 _usdt_tracepoint_probe:
         pushq   %rbp
         movq    %rsp, %rbp
-        movl    %edi, %ebx        // argc  -> %ebx
-        movq    %rsi, %r11        // nargv -> %r11
+        movq    %rdi, %r12        // addr  -> %r12
+        movl    %esi, %ebx        // argc  -> %ebx
+        movq    %rdx, %r11        // nargv -> %r11
         cmpl    $0,%ebx
         cmovge  (%r11),%rdi
         dec     %ebx
@@ -47,10 +48,12 @@ _usdt_tracepoint_probe:
         dec     %ebx
         cmpl    $0,%ebx
         cmovge  40(%r11),%r9
-        nop
-        nop
+        jmp     *%r12
+
 probe_tracepoint:
 _probe_tracepoint:
+        nop
+        nop
         nop
         nop
         nop

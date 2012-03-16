@@ -413,13 +413,3 @@ void usdt_provider_enable(usdt_provider_t *provider) {
   provider->file = file;
 }
 
-int usdt_is_enabled(usdt_probe_t *probe) {
-  return (*probe->isenabled_addr)();
-}
-
-void usdt_fire_probe(usdt_probe_t *probe, int argc, void **nargv) {
-  void (*func0)(int, void **);
-
-  func0 = (void (*)())probe->probe_addr;
-  (void)(*func0)(argc, nargv);
-}

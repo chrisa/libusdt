@@ -12,10 +12,10 @@
 #include <malloc.h>
 #endif
     
-#define FUNC_SIZE 128
+#define FUNC_SIZE 32
 
 extern void usdt_tracepoint_isenabled(void);
-extern void usdt_tracepoint_probe(void);
+extern void usdt_tracepoint_probe(void *, int, void**);
 extern void probe_tracepoint(void);
 
 typedef uint8_t usdt_argtype_t;
