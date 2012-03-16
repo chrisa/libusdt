@@ -6,7 +6,7 @@
  */   
         .text
 
-        .align  4, 0x90
+        .align 4, 0x90
         .globl usdt_tracepoint_isenabled
         .globl _usdt_tracepoint_isenabled
         .globl usdt_tracepoint_probe
@@ -33,6 +33,11 @@ _usdt_tracepoint_probe:
         leave
         ret
 
+/*
+ * Probe argument marshalling, x86_64 style
+ *
+ */
+        
 usdt_probe_args:
 _usdt_probe_args:
         pushq   %rbp

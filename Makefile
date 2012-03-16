@@ -12,7 +12,7 @@ CFLAGS += -m64
 endif
 endif
 
-objects = usdt.o usdt_dof_file.o usdt_tracepoints.o usdt_probe.o
+objects = usdt.o usdt_dof_file.o usdt_tracepoints.o usdt_probe.o usdt_dof.o usdt_dof_sections.o
 headers = usdt.h
 
 .c.o: $(headers)

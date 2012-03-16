@@ -118,3 +118,9 @@ typedef struct usdt_provider {
 void usdt_provider_add_probe(usdt_provider_t *provider, usdt_probedef_t *probedef);
 void usdt_provider_enable(usdt_provider_t *provider);
 size_t usdt_provider_dof_size(usdt_provider_t *provider, usdt_strtab_t *strtab);
+
+usdt_dof_section_t *usdt_dof_probes_sect(usdt_provider_t *provider, usdt_strtab_t *strtab);
+usdt_dof_section_t *usdt_dof_prargs_sect(usdt_provider_t *provider);
+usdt_dof_section_t *usdt_dof_proffs_sect(usdt_provider_t *provider, char *dof);
+usdt_dof_section_t *usdt_dof_prenoffs_sect(usdt_provider_t *provider, char *dof);
+usdt_dof_section_t *usdt_dof_provider_sect(usdt_provider_t *provider);
