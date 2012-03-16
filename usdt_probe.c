@@ -25,7 +25,7 @@ uint32_t usdt_is_enabled_offset(usdt_probe_t *probe, char *dof) {
 #else /* solaris */
 
 uint32_t usdt_probe_offset(usdt_probe_t *probe, char *dof, uint8_t argc) {
-  return 2;
+  return 12;
 }
 
 uint32_t usdt_is_enabled_offset(usdt_probe_t *probe, char *dof) {
@@ -38,10 +38,7 @@ void usdt_create_tracepoints(usdt_probe_t *probe) {
   probe->isenabled_addr = valloc(FUNC_SIZE);
   (void)mprotect((void *)probe->isenabled_addr, FUNC_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
   memcpy(probe->isenabled_addr, usdt_tracepoint_isenabled, FUNC_SIZE);
-
-  probe->probe_addr = (void *) valloc(FUNC_SIZE);
-  (void)mprotect((void *)probe->probe_addr, FUNC_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
-  memcpy(probe->probe_addr, (void *)probe_tracepoint, FUNC_SIZE);
+  probe->probe_addr = probe->isenabled_addr + (probe_tracepoint - usdt_tracepoint_isenabled);
 }
 
 int usdt_is_enabled(usdt_probe_t *probe) {

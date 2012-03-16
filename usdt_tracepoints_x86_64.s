@@ -18,6 +18,15 @@ _usdt_tracepoint_isenabled:
         nop
         leave
         ret
+probe_tracepoint:
+_probe_tracepoint:
+        nop
+        nop
+        nop
+        nop
+        nop
+        leave
+        ret
 
         .align  4, 0x90
         .globl usdt_tracepoint_probe
@@ -49,13 +58,3 @@ _usdt_tracepoint_probe:
         cmpl    $0,%ebx
         cmovge  40(%r11),%r9
         jmp     *%r12
-
-probe_tracepoint:
-_probe_tracepoint:
-        nop
-        nop
-        nop
-        nop
-        nop
-        leave
-        ret

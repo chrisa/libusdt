@@ -19,6 +19,16 @@ _usdt_tracepoint_isenabled:
         nop
         leave
         ret
+probe_tracepoint:
+_probe_tracepoint:
+        nop
+        nop
+        nop
+        nop
+        nop
+        addl    $0x20,%esp
+        leave
+        ret
 
         .align  4, 0x90
         .globl usdt_tracepoint_probe
@@ -45,13 +55,3 @@ args:   movl    %ecx,%eax
         jne     args
         jmp     *%ebx
 
-probe_tracepoint:
-_probe_tracepoint:
-        nop
-        nop
-        nop
-        nop
-        nop
-        addl    $0x20,%esp
-        leave
-        ret
