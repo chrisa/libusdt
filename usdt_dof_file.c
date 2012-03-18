@@ -59,39 +59,6 @@ load_dof(int fd, dof_helper_t *dh)
 
 #endif
 
-void
-usdt_dof_file_load(usdt_dof_file_t *file)
-{
-        dof_helper_t dh;
-        dof_hdr_t *dof;
-        int fd;
-
-        dof = (dof_hdr_t *) file->dof;
-
-        dh.dofhp_dof  = (uintptr_t)dof;
-        dh.dofhp_addr = (uintptr_t)dof;
-        (void) snprintf(dh.dofhp_mod, sizeof (dh.dofhp_mod), "module");
-
-        fd = open(helper, O_RDWR);
-        file->gen = load_dof(fd, &dh);
-
-        (void) close(fd);
-}
-
-void
-usdt_dof_file_append_section(usdt_dof_file_t *file, usdt_dof_section_t *section)
-{
-        usdt_dof_section_t *s;
-
-        if (file->sections == NULL) {
-                file->sections = section;
-        }
-        else {
-                for (s = file->sections; (s->next != NULL); s = s->next) ;
-                s->next = section;
-        }
-}
-
 static void
 pad_section(usdt_dof_section_t *sec)
 {
@@ -164,6 +131,44 @@ add_section(usdt_dof_file_t *file, size_t offset, usdt_dof_section_t *section)
 
         memcpy((file->dof + offset), section->data, section->size);
         return (offset + section->size);
+}
+
+int
+usdt_dof_file_load(usdt_dof_file_t *file)
+{
+        dof_helper_t dh;
+        dof_hdr_t *dof;
+        int fd;
+
+        dof = (dof_hdr_t *) file->dof;
+
+        dh.dofhp_dof  = (uintptr_t)dof;
+        dh.dofhp_addr = (uintptr_t)dof;
+        (void) snprintf(dh.dofhp_mod, sizeof (dh.dofhp_mod), "module");
+
+        if ((fd = open(helper, O_RDWR)) < 0)
+                return (-1);
+
+        file->gen = load_dof(fd, &dh);
+
+        if ((close(fd)) < 0)
+                return (-1);
+
+        return (0);
+}
+
+void
+usdt_dof_file_append_section(usdt_dof_file_t *file, usdt_dof_section_t *section)
+{
+        usdt_dof_section_t *s;
+
+        if (file->sections == NULL) {
+                file->sections = section;
+        }
+        else {
+                for (s = file->sections; (s->next != NULL); s = s->next) ;
+                s->next = section;
+        }
 }
 
 void

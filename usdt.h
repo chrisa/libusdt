@@ -34,7 +34,8 @@ typedef uint8_t usdt_argtype_t;
 typedef enum usdt_error {
         USDT_ERROR_MALLOC = 0,
         USDT_ERROR_VALLOC,
-        USDT_ERROR_NOPROBES
+        USDT_ERROR_NOPROBES,
+        USDT_ERROR_LOADDOF
 } usdt_error_t;
 
 typedef struct usdt_probe {
@@ -120,7 +121,7 @@ typedef struct usdt_dof_file {
 usdt_dof_file_t *usdt_dof_file_init(usdt_provider_t *provider, size_t size);
 void usdt_dof_file_append_section(usdt_dof_file_t *file, usdt_dof_section_t *section);
 void usdt_dof_file_generate(usdt_dof_file_t *file, usdt_strtab_t *strtab);
-void usdt_dof_file_load(usdt_dof_file_t *file);
+int usdt_dof_file_load(usdt_dof_file_t *file);
 
 int usdt_dof_probes_sect(usdt_dof_section_t *probes,
                          usdt_provider_t *provider, usdt_strtab_t *strtab);

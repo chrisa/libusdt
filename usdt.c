@@ -6,7 +6,8 @@
 char *usdt_errors[] = {
   "failed to allocate memory",
   "failed to allocate page-aligned memory",
-  "no probes defined"
+  "no probes defined",
+  "failed to load DOF"
 };
 
 usdt_provider_t *
@@ -161,7 +162,11 @@ usdt_provider_enable(usdt_provider_t *provider)
                 usdt_dof_file_append_section(file, &sects[i]);
 
         usdt_dof_file_generate(file, &strtab);
-        usdt_dof_file_load(file);
+
+        if ((usdt_dof_file_load(file)) < 0) {
+                usdt_error(provider, USDT_ERROR_LOADDOF);
+                return (-1);
+        }
 
         return (0);
 }
