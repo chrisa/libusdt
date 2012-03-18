@@ -34,11 +34,14 @@ int main(int argc, char **argv) {
                 }
         }
 
-        if ((provider = usdt_create_provider("testlibusdt")) == NULL) {
+        if ((provider = usdt_create_provider("testlibusdt", "modname")) == NULL) {
                 fprintf(stderr, "unable to create provider\n");
                 exit (1);
         }
-        if ((probedef = usdt_create_probe(argv[1], argv[2], (argc-3), &argv[3])) == NULL) {
+        if ((probedef = usdt_create_probe((const char *)argv[1],
+                                          (const char *)argv[2],
+                                          (argc-3), (const char **)&argv[3])) == NULL)
+        {
                 fprintf(stderr, "unable to create probe\n");
                 exit (1);
         }

@@ -98,7 +98,7 @@ usdt_strtab_init(usdt_strtab_t *strtab, dof_secidx_t index)
 }
 
 dof_stridx_t
-usdt_strtab_add(usdt_strtab_t *strtab, char *string)
+usdt_strtab_add(usdt_strtab_t *strtab, const char *string)
 {
         size_t length;
         int index;

@@ -50,17 +50,17 @@ int usdt_is_enabled(usdt_probe_t *probe);
 void usdt_fire_probe(usdt_probe_t *probe, int argc, void **argv);
 
 typedef struct usdt_probedef {
-        char *name;
-        char *function;
+        const char *name;
+        const char *function;
         usdt_argtype_t types[6];
         struct usdt_probe *probe;
         struct usdt_probedef *next;
 } usdt_probedef_t;
 
 uint8_t usdt_probedef_argc(usdt_probedef_t *probedef);
-usdt_probedef_t *usdt_create_probe_varargs(char *func, char *name, ...);
-usdt_probedef_t *usdt_create_probe(char *func, char *name,
-                                   size_t argc, char **types);
+usdt_probedef_t *usdt_create_probe_varargs(const char *func, const char *name, ...);
+usdt_probedef_t *usdt_create_probe(const char *func, const char *name,
+                                   size_t argc, const char **types);
 
 typedef struct usdt_dof_section {
         dof_secidx_t index;
@@ -94,17 +94,18 @@ typedef struct usdt_strtab {
 } usdt_strtab_t;
 
 int usdt_strtab_init(usdt_strtab_t *strtab, dof_secidx_t index);
-dof_stridx_t usdt_strtab_add(usdt_strtab_t *strtab, char *string);
+dof_stridx_t usdt_strtab_add(usdt_strtab_t *strtab, const char *string);
 char *usdt_strtab_header(usdt_strtab_t *strtab);
 size_t usdt_strtab_size(usdt_strtab_t *strtab);
 
 typedef struct usdt_provider {
-        char *name;
+        const char *name;
+        const char *module;
         usdt_probedef_t *probedefs;
         char *error;
 } usdt_provider_t;
 
-usdt_provider_t *usdt_create_provider(const char *name);
+usdt_provider_t *usdt_create_provider(const char *name, const char *module);
 void usdt_provider_add_probe(usdt_provider_t *provider, usdt_probedef_t *probedef);
 int usdt_provider_enable(usdt_provider_t *provider);
 size_t usdt_provider_dof_size(usdt_provider_t *provider, usdt_strtab_t *strtab);
@@ -121,7 +122,7 @@ typedef struct usdt_dof_file {
 usdt_dof_file_t *usdt_dof_file_init(usdt_provider_t *provider, size_t size);
 void usdt_dof_file_append_section(usdt_dof_file_t *file, usdt_dof_section_t *section);
 void usdt_dof_file_generate(usdt_dof_file_t *file, usdt_strtab_t *strtab);
-int usdt_dof_file_load(usdt_dof_file_t *file);
+int usdt_dof_file_load(usdt_dof_file_t *file, const char *module);
 
 int usdt_dof_probes_sect(usdt_dof_section_t *probes,
                          usdt_provider_t *provider, usdt_strtab_t *strtab);
