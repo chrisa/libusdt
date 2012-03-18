@@ -72,7 +72,7 @@ usdt_dof_file_append_section(usdt_dof_file_t *file, usdt_dof_section_t *section)
 }
 
 void
-usdt_dof_file_generate(usdt_dof_file_t *file)
+usdt_dof_file_generate(usdt_dof_file_t *file, usdt_strtab_t *strtab)
 {
         dof_hdr_t header;
         uint64_t filesz;
@@ -81,7 +81,7 @@ usdt_dof_file_generate(usdt_dof_file_t *file)
         size_t pad = 0;
         size_t i = 0;
         size_t offset;
-        void *h;
+        char *h;
 
         memset(&header, 0, sizeof(header));
 
@@ -107,21 +107,21 @@ usdt_dof_file_generate(usdt_dof_file_t *file)
         filesz = sizeof(dof_hdr_t) + (sizeof(dof_sec_t) * header.dofh_secnum);
         loadsz = filesz;
 
-        file->strtab->offset = filesz;
+        strtab->offset = filesz;
 
-        if (file->strtab->align > 1) {
-                i = file->strtab->offset % file->strtab->align;
+        if (strtab->align > 1) {
+                i = strtab->offset % strtab->align;
                 if (i > 0) {
-                        pad = file->strtab->align - i;
-                        file->strtab->offset = (pad + file->strtab->offset);
-                        file->strtab->pad = pad;
+                        pad = strtab->align - i;
+                        strtab->offset = (pad + strtab->offset);
+                        strtab->pad = pad;
                 }
         }
 
-        filesz += file->strtab->size + pad;
+        filesz += strtab->size + pad;
 
-        if (file->strtab->flags & 1)
-                loadsz += file->strtab->size + pad;
+        if (strtab->flags & 1)
+                loadsz += strtab->size + pad;
 
         for (sec = file->sections; sec != NULL; sec = sec->next) {
                 pad = 0;
@@ -149,7 +149,7 @@ usdt_dof_file_generate(usdt_dof_file_t *file)
 
         offset = sizeof(dof_hdr_t);
 
-        h = usdt_strtab_header(file->strtab);
+        h = usdt_strtab_header(strtab);
         memcpy((file->dof + offset), h, sizeof(dof_sec_t));
         free(h);
         offset += sizeof(dof_sec_t);
@@ -161,12 +161,12 @@ usdt_dof_file_generate(usdt_dof_file_t *file)
                 offset += sizeof(dof_sec_t);
         }
 
-        if (file->strtab->pad > 0) {
-                memcpy((file->dof + offset), "\0", file->strtab->pad);
-                offset += file->strtab->pad;
+        if (strtab->pad > 0) {
+                memcpy((file->dof + offset), "\0", strtab->pad);
+                offset += strtab->pad;
         }
-        memcpy((file->dof + offset), file->strtab->data, file->strtab->size);
-        offset += file->strtab->size;
+        memcpy((file->dof + offset), strtab->data, strtab->size);
+        offset += strtab->size;
 
         for (sec = file->sections; sec != NULL; sec = sec->next) {
                 if (sec->pad > 0) {
@@ -197,3 +197,17 @@ usdt_dof_file_load(usdt_dof_file_t *file)
         (void) close(fd);
 }
 
+usdt_dof_file_t *
+usdt_dof_file_init(usdt_provider_t *provider, size_t size)
+{
+        usdt_dof_file_t *file;
+
+        if ((file = malloc(sizeof(*file))) == NULL)
+                return (NULL);
+
+        file->sections = NULL;
+        file->size = size;
+        file->dof = (char *) valloc(file->size);
+
+        return (file);
+}

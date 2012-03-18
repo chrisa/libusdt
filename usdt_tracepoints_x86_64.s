@@ -37,29 +37,35 @@ _usdt_tracepoint_probe:
  * Probe argument marshalling, x86_64 style
  *
  */
-        
+
 usdt_probe_args:
 _usdt_probe_args:
         pushq   %rbp
-        movq    %rsp, %rbp
-        movq    %rdi, %r12        // addr  -> %r12
-        movl    %esi, %ebx        // argc  -> %ebx
-        movq    %rdx, %r11        // nargv -> %r11
-        cmpl    $0,%ebx
-        cmovge  (%r11),%rdi
+        movq    %rsp,%rbp
+        movq    %rdi,%r12        // addr  -> %r12
+        movl    %esi,%ebx        // argc  -> %ebx
+        movq    %rdx,%r11        // nargv -> %r11
+        test    %ebx,%ebx
+        je      fire
+        movq    (%r11),%rdi
         dec     %ebx
-        cmpl    $0,%ebx
-        cmovge  8(%r11),%rsi
+        test    %ebx,%ebx
+        je      fire
+        movq    8(%r11),%rsi
         dec     %ebx
-        cmpl    $0,%ebx
-        cmovge  16(%r11),%rdx
+        test    %ebx,%ebx
+        je      fire
+        movq    16(%r11),%rdx
         dec     %ebx
-        cmpl    $0,%ebx
-        cmovge  24(%r11),%rcx
+        test    %ebx,%ebx
+        je      fire
+        movq    24(%r11),%rcx
         dec     %ebx
-        cmpl    $0,%ebx
-        cmovge  32(%r11),%r8
+        test    %ebx,%ebx
+        je      fire
+        movq    32(%r11),%r8
         dec     %ebx
-        cmpl    $0,%ebx
-        cmovge  40(%r11),%r9
-        jmp     *%r12
+        test    %ebx,%ebx
+        je      fire
+        movq    40(%r11),%r9
+fire:   jmp     *%r12

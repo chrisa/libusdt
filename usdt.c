@@ -3,12 +3,36 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-void
-usdt_create_probe_varargs(usdt_probedef_t *p, char *func, char *name, ...)
+char *usdt_errors[] = {
+  "failed to allocate memory",
+  "no probes defined"
+};
+
+usdt_provider_t *
+usdt_create_provider(const char *name)
+{
+        usdt_provider_t *provider;
+
+        if ((provider = malloc(sizeof *provider)) == NULL) 
+                return NULL;
+
+        provider->name = strdup(name);
+        provider->probedefs = NULL;
+        provider->probes = NULL;
+
+        return provider;
+}
+
+usdt_probedef_t *
+usdt_create_probe_varargs(char *func, char *name, ...)
 {
         va_list ap;
         int i;
         char *type;
+        usdt_probedef_t *p;
+
+        if ((p = malloc(sizeof *p)) == NULL)
+                return (NULL);
 
         p->function = strdup(func);
         p->name = strdup(name);
@@ -28,21 +52,26 @@ usdt_create_probe_varargs(usdt_probedef_t *p, char *func, char *name, ...)
                         p->types[i] = USDT_ARGTYPE_NONE;
                 }
         }
+
+        return (p);
 }
 
-void
-usdt_create_probe(usdt_probedef_t *p, char *func, char *name, char **types)
+usdt_probedef_t *
+usdt_create_probe(char *func, char *name, size_t argc, char **types)
 {
         int i;
+        usdt_probedef_t *p;
+
+        if ((p = malloc(sizeof *p)) == NULL)
+                return (NULL);
 
         p->function = strdup(func);
         p->name = strdup(name);
 
         for (i = 0; i < 6; i++) {
-                if (types[i] != NULL) {
+                if (i < argc && types[i] != NULL) {
                         if (strncmp("char *", types[i], 6) == 0)
                                 p->types[i] = USDT_ARGTYPE_STRING;
-
                         if (strncmp("int", types[i], 3) == 0)
                                 p->types[i] = USDT_ARGTYPE_INTEGER;
                 }
@@ -50,6 +79,8 @@ usdt_create_probe(usdt_probedef_t *p, char *func, char *name, char **types)
                         p->types[i] = USDT_ARGTYPE_NONE;
                 }
         }
+
+        return (p);
 }
 
 void
@@ -78,48 +109,48 @@ usdt_probedef_argc(usdt_probedef_t *probedef)
         return args;
 }
 
-void
+int
 usdt_provider_enable(usdt_provider_t *provider)
 {
-        usdt_strtab_t *strtab;
+        usdt_strtab_t strtab;
         usdt_dof_file_t *file;
-
-        usdt_dof_section_t *probes;
-        usdt_dof_section_t *prargs;
-        usdt_dof_section_t *proffs;
-        usdt_dof_section_t *prenoffs;
-        usdt_dof_section_t *provider_s;
-
-        strtab = malloc(sizeof(*strtab));
-        usdt_strtab_init(strtab, 0);
-        usdt_strtab_add(strtab, provider->name);
+        usdt_probedef_t *pd;
+        int i;
+        size_t size;
+        usdt_dof_section_t sects[5];
 
         if (provider->probedefs == NULL)
-                return;
+                return (-1);
 
-        probes = usdt_dof_probes_sect(provider, strtab);
-        prargs = usdt_dof_prargs_sect(provider);
+        for (pd = provider->probedefs; pd != NULL; pd = pd->next) {
+                if ((pd->probe = malloc(sizeof(*pd->probe))) == NULL)
+                        return (-1);
+        }
 
-        file = malloc(sizeof(*file));
-        file->sections = NULL;
-        file->size = usdt_provider_dof_size(provider, strtab);
-        file->dof = (char *) valloc(file->size);
-        file->strtab = strtab;
+        if ((usdt_strtab_init(&strtab, 0)) < 0)
+                return (-1);
 
-        proffs = usdt_dof_proffs_sect(provider, file->dof);
-        prenoffs = usdt_dof_prenoffs_sect(provider, file->dof);
-        provider_s = usdt_dof_provider_sect(provider);
+        if ((usdt_strtab_add(&strtab, provider->name)) < 0)
+                return (-1);
 
-        usdt_dof_file_append_section(file, probes);
-        usdt_dof_file_append_section(file, prargs);
-        usdt_dof_file_append_section(file, proffs);
-        usdt_dof_file_append_section(file, prenoffs);
-        usdt_dof_file_append_section(file, provider_s);
+        usdt_dof_probes_sect(&sects[0], provider, &strtab);
+        usdt_dof_prargs_sect(&sects[1], provider);
 
-        usdt_dof_file_generate(file);
+        size = usdt_provider_dof_size(provider, &strtab);
+        if ((file = usdt_dof_file_init(provider, size)) == NULL)
+                return (-1);
+
+        usdt_dof_proffs_sect(&sects[2], provider, file->dof);
+        usdt_dof_prenoffs_sect(&sects[3], provider, file->dof);
+        usdt_dof_provider_sect(&sects[4], provider);
+
+        for (i = 0; i < 5; i++)
+                usdt_dof_file_append_section(file, &sects[i]);
+
+        usdt_dof_file_generate(file, &strtab);
         usdt_dof_file_load(file);
 
-        provider->file = file;
+        return (0);
 }
 
 int
@@ -132,4 +163,16 @@ void
 usdt_fire_probe(usdt_probe_t *probe, int argc, void **nargv)
 {
         usdt_probe_args(probe->probe_addr, argc, nargv);
+}
+
+void
+usdt_error(usdt_provider_t *provider, usdt_error_t error)
+{
+        provider->error = usdt_errors[error];
+}
+
+char *
+usdt_errstr(usdt_provider_t *provider)
+{
+        return (provider->error);
 }
