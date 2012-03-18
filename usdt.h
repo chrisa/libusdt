@@ -55,7 +55,6 @@ typedef struct usdt_probe {
         usdt_argtype_t types[6];
 } usdt_probe_t;
 
-char *usdt_probe_dof(usdt_probe_t *probe);
 uint32_t usdt_probe_offset(usdt_probe_t *probe, char *dof, uint8_t argc);
 uint32_t usdt_is_enabled_offset(usdt_probe_t *probe, char *dof);
 int usdt_create_tracepoints(usdt_probe_t *probe);

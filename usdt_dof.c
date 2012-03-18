@@ -2,38 +2,6 @@
 
 #include <stdlib.h>
 
-char *
-usdt_probe_dof(usdt_probe_t *probe)
-{
-        char *dof;
-        dof_probe_t p;
-
-#ifdef __x86_64__
-        p.dofpr_addr     = (uint64_t) probe->isenabled_addr;
-#elif __i386__
-        p.dofpr_addr     = (uint32_t) probe->isenabled_addr;
-#else
-#error "only x86_64 and i386 supported"
-#endif
-        p.dofpr_func     = probe->func;
-        p.dofpr_name     = probe->name;
-        p.dofpr_nargv    = probe->nargv;
-        p.dofpr_xargv    = probe->xargv;
-        p.dofpr_argidx   = probe->argidx;
-        p.dofpr_offidx   = probe->offidx;
-        p.dofpr_nargc    = probe->nargc;
-        p.dofpr_xargc    = probe->xargc;
-        p.dofpr_noffs    = probe->noffs;
-        p.dofpr_enoffidx = probe->enoffidx;
-        p.dofpr_nenoffs  = probe->nenoffs;
-
-        if ((dof = malloc(sizeof(dof_probe_t))) == NULL)
-                return (NULL);
-
-        memcpy(dof, &p, sizeof(dof_probe_t));
-        return dof;
-}
-
 int
 usdt_dof_section_add_data(usdt_dof_section_t *section, void *data, size_t length)
 {

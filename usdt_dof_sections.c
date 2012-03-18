@@ -57,7 +57,7 @@ usdt_dof_probes_sect(usdt_dof_section_t *probes,
         usdt_probe_t *p;
         uint32_t argidx = 0;
         uint32_t offidx = 0;
-        void *dof;
+        dof_probe_t probe;
 
         usdt_dof_section_init(probes, DOF_SECT_PROBES, 1);
 
@@ -75,8 +75,26 @@ usdt_dof_probes_sect(usdt_dof_section_t *probes,
                         p->next = pd->probe;
                 }
 
-                dof = usdt_probe_dof(pd->probe);
-                if (usdt_dof_section_add_data(probes, dof, sizeof(dof_probe_t)) < 0) {
+#ifdef __x86_64__
+                probe.dofpr_addr     = (uint64_t) pd->probe->isenabled_addr;
+#elif __i386__
+                probe.dofpr_addr     = (uint32_t) pd->probe->isenabled_addr;
+#else
+#error "only x86_64 and i386 supported"
+#endif
+                probe.dofpr_func     = pd->probe->func;
+                probe.dofpr_name     = pd->probe->name;
+                probe.dofpr_nargv    = pd->probe->nargv;
+                probe.dofpr_xargv    = pd->probe->xargv;
+                probe.dofpr_argidx   = pd->probe->argidx;
+                probe.dofpr_offidx   = pd->probe->offidx;
+                probe.dofpr_nargc    = pd->probe->nargc;
+                probe.dofpr_xargc    = pd->probe->xargc;
+                probe.dofpr_noffs    = pd->probe->noffs;
+                probe.dofpr_enoffidx = pd->probe->enoffidx;
+                probe.dofpr_nenoffs  = pd->probe->nenoffs;
+
+                if (usdt_dof_section_add_data(probes, &probe, sizeof(dof_probe_t)) < 0) {
                         usdt_error(provider, USDT_ERROR_MALLOC);
                         return (-1);
                 }
