@@ -1,4 +1,4 @@
-#include "usdt.h"
+#include "usdt_internal.h"
 
 int
 usdt_dof_probes_sect(usdt_dof_section_t *probes,

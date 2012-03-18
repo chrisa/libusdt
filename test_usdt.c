@@ -1,8 +1,8 @@
 #include "usdt.h"
 
 #include <stdio.h>
-#include <fcntl.h>
 #include <stdlib.h>
+#include <string.h>
 
 int main(int argc, char **argv) {
         usdt_provider_t *provider;

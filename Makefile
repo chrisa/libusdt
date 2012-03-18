@@ -13,7 +13,7 @@ endif
 endif
 
 objects = usdt.o usdt_dof_file.o usdt_tracepoints.o usdt_probe.o usdt_dof.o usdt_dof_sections.o
-headers = usdt.h
+headers = usdt.h usdt_internal.h
 
 .c.o: $(headers)
 
