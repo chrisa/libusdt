@@ -1,4 +1,4 @@
-#include "usdt.h"
+#include "usdt_internal.h"
 
 #include <stdio.h>
 #include <stdlib.h>
