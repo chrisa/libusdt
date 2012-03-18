@@ -134,7 +134,7 @@ add_section(usdt_dof_file_t *file, size_t offset, usdt_dof_section_t *section)
 }
 
 int
-usdt_dof_file_load(usdt_dof_file_t *file)
+usdt_dof_file_load(usdt_dof_file_t *file, const char *module)
 {
         dof_helper_t dh;
         dof_hdr_t *dof;
@@ -144,7 +144,7 @@ usdt_dof_file_load(usdt_dof_file_t *file)
 
         dh.dofhp_dof  = (uintptr_t)dof;
         dh.dofhp_addr = (uintptr_t)dof;
-        (void) snprintf(dh.dofhp_mod, sizeof (dh.dofhp_mod), "module");
+        (void) strncpy(dh.dofhp_mod, module, sizeof (dh.dofhp_mod));
 
         if ((fd = open(helper, O_RDWR)) < 0)
                 return (-1);

@@ -11,7 +11,7 @@ char *usdt_errors[] = {
 };
 
 usdt_provider_t *
-usdt_create_provider(const char *name)
+usdt_create_provider(const char *name, const char *module)
 {
         usdt_provider_t *provider;
 
@@ -19,17 +19,18 @@ usdt_create_provider(const char *name)
                 return NULL;
 
         provider->name = strdup(name);
+        provider->module = strdup(module);
         provider->probedefs = NULL;
 
         return provider;
 }
 
 usdt_probedef_t *
-usdt_create_probe_varargs(char *func, char *name, ...)
+usdt_create_probe_varargs(const char *func, const char *name, ...)
 {
         va_list ap;
         int i;
-        char *type;
+        const char *type;
         usdt_probedef_t *p;
 
         if ((p = malloc(sizeof *p)) == NULL)
@@ -41,7 +42,7 @@ usdt_create_probe_varargs(char *func, char *name, ...)
         va_start(ap, name);
 
         for (i = 0; i < 6; i++) {
-                if ((type = va_arg(ap, char *)) != NULL) {
+                if ((type = va_arg(ap, const char *)) != NULL) {
                         if (strncmp("char *", type, 6)) {
                                 p->types[i] = USDT_ARGTYPE_STRING;
                         }
@@ -58,7 +59,7 @@ usdt_create_probe_varargs(char *func, char *name, ...)
 }
 
 usdt_probedef_t *
-usdt_create_probe(char *func, char *name, size_t argc, char **types)
+usdt_create_probe(const char *func, const char *name, size_t argc, const char **types)
 {
         int i;
         usdt_probedef_t *p;
@@ -163,7 +164,7 @@ usdt_provider_enable(usdt_provider_t *provider)
 
         usdt_dof_file_generate(file, &strtab);
 
-        if ((usdt_dof_file_load(file)) < 0) {
+        if ((usdt_dof_file_load(file, provider->module)) < 0) {
                 usdt_error(provider, USDT_ERROR_LOADDOF);
                 return (-1);
         }
