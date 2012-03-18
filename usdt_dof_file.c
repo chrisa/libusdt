@@ -202,12 +202,18 @@ usdt_dof_file_init(usdt_provider_t *provider, size_t size)
 {
         usdt_dof_file_t *file;
 
-        if ((file = malloc(sizeof(*file))) == NULL)
+        if ((file = malloc(sizeof(*file))) == NULL) {
+                usdt_error(provider, USDT_ERROR_MALLOC);
                 return (NULL);
+        }
+
+        if ((file->dof = valloc(size)) == NULL) {
+                usdt_error(provider, USDT_ERROR_VALLOC);
+                return (NULL);
+        }
 
         file->sections = NULL;
         file->size = size;
-        file->dof = (char *) valloc(file->size);
 
         return (file);
 }

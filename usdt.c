@@ -5,6 +5,7 @@
 
 char *usdt_errors[] = {
   "failed to allocate memory",
+  "failed to allocate page-aligned memory",
   "no probes defined"
 };
 
@@ -119,19 +120,27 @@ usdt_provider_enable(usdt_provider_t *provider)
         size_t size;
         usdt_dof_section_t sects[5];
 
-        if (provider->probedefs == NULL)
+        if (provider->probedefs == NULL) {
+                usdt_error(provider, USDT_ERROR_NOPROBES);
                 return (-1);
-
-        for (pd = provider->probedefs; pd != NULL; pd = pd->next) {
-                if ((pd->probe = malloc(sizeof(*pd->probe))) == NULL)
-                        return (-1);
         }
 
-        if ((usdt_strtab_init(&strtab, 0)) < 0)
-                return (-1);
+        for (pd = provider->probedefs; pd != NULL; pd = pd->next) {
+                if ((pd->probe = malloc(sizeof(*pd->probe))) == NULL) {
+                        usdt_error(provider, USDT_ERROR_MALLOC);
+                        return (-1);
+                }
+        }
 
-        if ((usdt_strtab_add(&strtab, provider->name)) < 0)
+        if ((usdt_strtab_init(&strtab, 0)) < 0) {
+                usdt_error(provider, USDT_ERROR_MALLOC);
                 return (-1);
+        }
+
+        if ((usdt_strtab_add(&strtab, provider->name)) < 0) {
+                usdt_error(provider, USDT_ERROR_MALLOC);
+                return (-1);
+        }
 
         usdt_dof_probes_sect(&sects[0], provider, &strtab);
         usdt_dof_prargs_sect(&sects[1], provider);

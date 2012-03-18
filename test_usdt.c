@@ -34,10 +34,20 @@ int main(int argc, char **argv) {
     }
   }
 
-  provider = usdt_create_provider("testlibusdt");
-  probedef = usdt_create_probe(argv[1], argv[2], (argc-3), &argv[3]);
+  if ((provider = usdt_create_provider("testlibusdt")) == NULL) {
+          fprintf(stderr, "unable to create provider\n");
+          exit (1);
+  }
+  if ((probedef = usdt_create_probe(argv[1], argv[2], (argc-3), &argv[3])) == NULL) {
+          fprintf(stderr, "unable to create probe\n");
+          exit (1);
+  }
   usdt_provider_add_probe(provider, probedef);
-  usdt_provider_enable(provider);
+
+  if ((usdt_provider_enable(provider)) < 0) {
+          fprintf(stderr, "unable to enable provider: %s\n", usdt_errstr(provider));
+          exit (1);
+  }
 
   if (usdt_is_enabled(probedef->probe)) {
     usdt_fire_probe(probedef->probe, (argc-3), (void **)args);
