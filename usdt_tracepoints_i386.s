@@ -48,8 +48,7 @@ _usdt_probe_args:
         movl    8(%ebp),%ebx    // addr -> %ebx
         movl    0xc(%ebp),%ecx  // argc -> %ecx
         test    %ecx,%ecx
-        jne     args
-        jmp     *%ebx
+        je      fire
 args:   movl    %ecx,%eax
         sal     $2,%eax
         subl    $4,%eax
@@ -57,5 +56,5 @@ args:   movl    %ecx,%eax
         pushl   (%eax)
         dec     %ecx
         jne     args
-        jmp     *%ebx
+fire:   jmp     *%ebx
 

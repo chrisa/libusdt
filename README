@@ -1,9 +1,10 @@
 This is "libusdt", an extraction into a C library of the common parts
 of ruby-dtrace[1], perl-dtrace[2] and node-dtrace-provider[3].
 
-Once this library is functional, those libraries will become bindings
-to this library, rather than containing their own implementations of
-DOF and probe creation. Other dynamic language bindings should follow.
+Those individual language-specific implementations will then become
+bindings to this library, rather than containing their own
+implementations of DOF generation and probe creation. Other dynamic
+language bindings could then easily follow.
 
 The idea here is to allow the specification of a DTrace provider
 dynamically in code and then create the provider at runtime. This
@@ -20,18 +21,19 @@ exposes the stubs, through which the probes may be fired.
 
 Status:
 
-The implementation here works as shown in test_usdt.c on Mac OS X, 64
-bit only (despite the #ifdefs for Solaris in places).
+The implementation here works as shown in test_usdt.c on Mac OS X,
+i386 and x86_64, and on Solaris-like systems, i386 and x86_64.
 
 Is-enabled probes are supported and exposed in the API.
 
+There is a "test" target which runs a number of tests of the library,
+for which perl is required.
+
 To do:
 
- * break out platform-specific parts
- * add support for Solaris i386 and x86_64
+ * add support for FreeBSD 9.0 i386 / x86_64
  * add support for Mac OS X PowerPC
  * add support for Solaris SPARC
-
 
 [1] https://github.com/chrisa/ruby-dtrace
 [2] https://github.com/chrisa/perl-dtrace
