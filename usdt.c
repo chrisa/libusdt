@@ -142,16 +142,21 @@ usdt_provider_enable(usdt_provider_t *provider)
                 return (-1);
         }
 
-        usdt_dof_probes_sect(&sects[0], provider, &strtab);
-        usdt_dof_prargs_sect(&sects[1], provider);
+        if ((usdt_dof_probes_sect(&sects[0], provider, &strtab)) < 0)
+                return (-1);
+        if ((usdt_dof_prargs_sect(&sects[1], provider)) < 0)
+                return (-1);
 
         size = usdt_provider_dof_size(provider, &strtab);
         if ((file = usdt_dof_file_init(provider, size)) == NULL)
                 return (-1);
 
-        usdt_dof_proffs_sect(&sects[2], provider, file->dof);
-        usdt_dof_prenoffs_sect(&sects[3], provider, file->dof);
-        usdt_dof_provider_sect(&sects[4], provider);
+        if ((usdt_dof_proffs_sect(&sects[2], provider, file->dof)) < 0)
+                return (-1);
+        if ((usdt_dof_prenoffs_sect(&sects[3], provider, file->dof)) < 0)
+                return (-1);
+        if ((usdt_dof_provider_sect(&sects[4], provider)) < 0)
+                return (-1);
 
         for (i = 0; i < 5; i++)
                 usdt_dof_file_append_section(file, &sects[i]);

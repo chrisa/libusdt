@@ -58,6 +58,25 @@ static int _loaddof(int fd, dof_helper_t *dh) {
 #endif
 
 void
+usdt_dof_file_load(usdt_dof_file_t *file)
+{
+        dof_helper_t dh;
+        dof_hdr_t *dof;
+        int fd;
+
+        dof = (dof_hdr_t *) file->dof;
+
+        dh.dofhp_dof  = (uintptr_t)dof;
+        dh.dofhp_addr = (uintptr_t)dof;
+        (void) snprintf(dh.dofhp_mod, sizeof (dh.dofhp_mod), "module");
+
+        fd = open(helper, O_RDWR);
+        file->gen = _loaddof(fd, &dh);
+
+        (void) close(fd);
+}
+
+void
 usdt_dof_file_append_section(usdt_dof_file_t *file, usdt_dof_section_t *section)
 {
         usdt_dof_section_t *s;
@@ -71,6 +90,21 @@ usdt_dof_file_append_section(usdt_dof_file_t *file, usdt_dof_section_t *section)
         }
 }
 
+static void
+pad_section(usdt_dof_section_t *sec)
+{
+        size_t i, pad;
+
+        if (sec->align > 1) {
+                i = sec->offset % sec->align;
+                if (i > 0) {
+                        pad = sec->align - i;
+                        sec->offset = (pad + sec->offset);
+                        sec->pad = pad;
+                }
+        }
+}
+
 void
 usdt_dof_file_generate(usdt_dof_file_t *file, usdt_strtab_t *strtab)
 {
@@ -78,8 +112,6 @@ usdt_dof_file_generate(usdt_dof_file_t *file, usdt_strtab_t *strtab)
         uint64_t filesz;
         uint64_t loadsz;
         usdt_dof_section_t *sec;
-        size_t pad = 0;
-        size_t i = 0;
         size_t offset;
         char *h;
 
@@ -108,39 +140,18 @@ usdt_dof_file_generate(usdt_dof_file_t *file, usdt_strtab_t *strtab)
         loadsz = filesz;
 
         strtab->offset = filesz;
-
-        if (strtab->align > 1) {
-                i = strtab->offset % strtab->align;
-                if (i > 0) {
-                        pad = strtab->align - i;
-                        strtab->offset = (pad + strtab->offset);
-                        strtab->pad = pad;
-                }
-        }
-
-        filesz += strtab->size + pad;
+        pad_section((usdt_dof_section_t *)strtab);
+        filesz += strtab->size + strtab->pad;
 
         if (strtab->flags & 1)
-                loadsz += strtab->size + pad;
+                loadsz += strtab->size + strtab->pad;
 
         for (sec = file->sections; sec != NULL; sec = sec->next) {
-                pad = 0;
-                i = 0;
-
                 sec->offset = filesz;
-
-                if (sec->align > 1) {
-                        i = sec->offset % sec->align;
-                        if (i > 0) {
-                                pad = sec->align - i;
-                                sec->offset = (pad + sec->offset);
-                                sec->pad = pad;
-                        }
-                }
-
-                filesz += sec->size + pad;
+                pad_section(sec);
+                filesz += sec->size + sec->pad;
                 if (sec->flags & 1)
-                        loadsz += sec->size + pad;
+                        loadsz += sec->size + sec->pad;
         }
 
         header.dofh_loadsz = loadsz;
@@ -176,25 +187,6 @@ usdt_dof_file_generate(usdt_dof_file_t *file, usdt_strtab_t *strtab)
                 memcpy((file->dof + offset), sec->data, sec->size);
                 offset += sec->size;
         }
-}
-
-void
-usdt_dof_file_load(usdt_dof_file_t *file)
-{
-        dof_helper_t dh;
-        dof_hdr_t *dof;
-        int fd;
-
-        dof = (dof_hdr_t *) file->dof;
-
-        dh.dofhp_dof  = (uintptr_t)dof;
-        dh.dofhp_addr = (uintptr_t)dof;
-        (void) snprintf(dh.dofhp_mod, sizeof (dh.dofhp_mod), "module");
-
-        fd = open(helper, O_RDWR);
-        file->gen = _loaddof(fd, &dh);
-
-        (void) close(fd);
 }
 
 usdt_dof_file_t *

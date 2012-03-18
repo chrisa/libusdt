@@ -76,8 +76,10 @@ usdt_dof_probes_sect(usdt_dof_section_t *probes,
                 }
 
                 dof = usdt_probe_dof(pd->probe);
-                if (usdt_dof_section_add_data(probes, dof, sizeof(dof_probe_t)) < 0)
+                if (usdt_dof_section_add_data(probes, dof, sizeof(dof_probe_t)) < 0) {
+                        usdt_error(provider, USDT_ERROR_MALLOC);
                         return (-1);
+                }
 
                 probes->entsize = sizeof(dof_probe_t);
         }
@@ -100,8 +102,10 @@ usdt_dof_prargs_sect(usdt_dof_section_t *prargs, usdt_provider_t *provider)
         }
         if (prargs->size == 0) {
                 i = 0;
-                if (usdt_dof_section_add_data(prargs, &i, 1) < 0)
+                if (usdt_dof_section_add_data(prargs, &i, 1) < 0) {
+                        usdt_error(provider, USDT_ERROR_MALLOC);
                         return (-1);
+                }
         }
 
         return (0);
@@ -119,8 +123,10 @@ usdt_dof_proffs_sect(usdt_dof_section_t *proffs,
 
         for (pd = provider->probedefs; pd != NULL; pd = pd->next) {
                 off = usdt_probe_offset(pd->probe, dof, usdt_probedef_argc(pd));
-                if (usdt_dof_section_add_data(proffs, &off, 4) < 0)
+                if (usdt_dof_section_add_data(proffs, &off, 4) < 0) {
+                        usdt_error(provider, USDT_ERROR_MALLOC);
                         return (-1);
+                }
         }
 
         return (0);
@@ -138,8 +144,10 @@ usdt_dof_prenoffs_sect(usdt_dof_section_t *prenoffs,
 
         for (pd = provider->probedefs; pd != NULL; pd = pd->next) {
                 off = usdt_is_enabled_offset(pd->probe, dof);
-                if (usdt_dof_section_add_data(prenoffs, &off, 4) < 0)
+                if (usdt_dof_section_add_data(prenoffs, &off, 4) < 0) {
+                        usdt_error(provider, USDT_ERROR_MALLOC);
                         return (-1);
+                }
         }
 
         return (0);
@@ -174,5 +182,10 @@ usdt_dof_provider_sect(usdt_dof_section_t *provider_s, usdt_provider_t *provider
                                     DTRACE_STABILITY_EVOLVING,
                                     DTRACE_STABILITY_EVOLVING);
 
-        return usdt_dof_section_add_data(provider_s, &p, sizeof(p));
+        if ((usdt_dof_section_add_data(provider_s, &p, sizeof(p))) < 0) {
+                usdt_error(provider, USDT_ERROR_MALLOC);
+                return (-1);
+        }
+
+        return (0);
 }
