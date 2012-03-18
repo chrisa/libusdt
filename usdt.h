@@ -38,21 +38,8 @@ typedef enum usdt_error {
 } usdt_error_t;
 
 typedef struct usdt_probe {
-        dof_stridx_t name;
-        dof_stridx_t func;
-        dof_stridx_t nargv;
-        dof_stridx_t xargv;
-        uint16_t noffs;
-        uint32_t enoffidx;
-        uint32_t argidx;
-        uint16_t nenoffs;
-        uint32_t offidx;
-        uint8_t nargc;
-        uint8_t xargc;
         int (*isenabled_addr)(void);
         void *probe_addr;
-        struct usdt_probe *next;
-        usdt_argtype_t types[6];
 } usdt_probe_t;
 
 uint32_t usdt_probe_offset(usdt_probe_t *probe, char *dof, uint8_t argc);
@@ -114,7 +101,6 @@ size_t usdt_strtab_size(usdt_strtab_t *strtab);
 typedef struct usdt_provider {
         char *name;
         usdt_probedef_t *probedefs;
-        usdt_probe_t *probes;
         char *error;
 } usdt_provider_t;
 

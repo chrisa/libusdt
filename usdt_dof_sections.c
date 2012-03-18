@@ -1,105 +1,70 @@
 #include "usdt.h"
 
-int
-usdt_dof_probe_sect(usdt_probedef_t *pd, usdt_strtab_t *strtab,
-                    uint32_t offidx, uint32_t argidx)
-{
-        dof_stridx_t argv = 0;
-        dof_stridx_t type;
-        uint8_t i, argc = 0;
-        usdt_probe_t *probe = pd->probe;
-
-        for (i = 0; pd->types[i] != USDT_ARGTYPE_NONE && i < 6; i++) {
-                probe->types[i] = pd->types[i];
-
-                switch(pd->types[i]) {
-                case USDT_ARGTYPE_INTEGER:
-                        if ((type = usdt_strtab_add(strtab, "int")) < 0)
-                                return (-1);
-                        break;
-                case USDT_ARGTYPE_STRING:
-                        if ((type = usdt_strtab_add(strtab, "char *")) < 0)
-                                return (-1);
-                        break;
-                default:
-                        break;
-                }
-
-                argc++;
-                if (argv == 0)
-                        argv = type;
-        }
-
-        if ((probe->name = usdt_strtab_add(strtab, pd->name)) < 0)
-                return (-1);
-        if ((probe->func = usdt_strtab_add(strtab, pd->function)) < 0)
-                return (-1);
-
-        probe->next     = NULL;
-        probe->noffs    = 1;
-        probe->enoffidx = offidx;
-        probe->argidx   = argidx;
-        probe->nenoffs  = 1;
-        probe->offidx   = offidx;
-        probe->nargc    = argc;
-        probe->xargc    = argc;
-        probe->nargv    = argv;
-        probe->xargv    = argv;
-
-        return usdt_create_tracepoints(probe);
-}
+#include <stdlib.h>
 
 int
 usdt_dof_probes_sect(usdt_dof_section_t *probes,
                      usdt_provider_t *provider, usdt_strtab_t *strtab)
 {
         usdt_probedef_t *pd;
-        usdt_probe_t *p;
+        dof_probe_t p;
+        dof_stridx_t type, argv;
+        uint8_t argc, i;
         uint32_t argidx = 0;
         uint32_t offidx = 0;
-        dof_probe_t probe;
 
         usdt_dof_section_init(probes, DOF_SECT_PROBES, 1);
 
         for (pd = provider->probedefs; pd != NULL; pd = pd->next) {
-                usdt_dof_probe_sect(pd, strtab, offidx, argidx);
+                argc = 0;
+                argv = 0;
 
-                argidx += pd->probe->nargc;
-                offidx++;
+                for (i = 0; pd->types[i] != USDT_ARGTYPE_NONE && i < 6; i++) {
+                        switch(pd->types[i]) {
+                        case USDT_ARGTYPE_INTEGER:
+                                type = usdt_strtab_add(strtab, "int");
+                                break;
+                        case USDT_ARGTYPE_STRING:
+                                type = usdt_strtab_add(strtab, "char *");
+                                break;
+                        default:
+                                break;
+                        }
 
-                if (provider->probes == NULL) {
-                        provider->probes = pd->probe;
+                        argc++;
+                        if (argv == 0)
+                                argv = type;
                 }
-                else {
-                        for (p = provider->probes; p->next != NULL; p = p->next) ;
-                        p->next = pd->probe;
-                }
 
-#ifdef __x86_64__
-                probe.dofpr_addr     = (uint64_t) pd->probe->isenabled_addr;
-#elif __i386__
-                probe.dofpr_addr     = (uint32_t) pd->probe->isenabled_addr;
-#else
-#error "only x86_64 and i386 supported"
-#endif
-                probe.dofpr_func     = pd->probe->func;
-                probe.dofpr_name     = pd->probe->name;
-                probe.dofpr_nargv    = pd->probe->nargv;
-                probe.dofpr_xargv    = pd->probe->xargv;
-                probe.dofpr_argidx   = pd->probe->argidx;
-                probe.dofpr_offidx   = pd->probe->offidx;
-                probe.dofpr_nargc    = pd->probe->nargc;
-                probe.dofpr_xargc    = pd->probe->xargc;
-                probe.dofpr_noffs    = pd->probe->noffs;
-                probe.dofpr_enoffidx = pd->probe->enoffidx;
-                probe.dofpr_nenoffs  = pd->probe->nenoffs;
-
-                if (usdt_dof_section_add_data(probes, &probe, sizeof(dof_probe_t)) < 0) {
-                        usdt_error(provider, USDT_ERROR_MALLOC);
+                if (usdt_create_tracepoints(pd->probe) < 0) {
+                        usdt_error(provider, USDT_ERROR_VALLOC);
                         return (-1);
                 }
 
+#ifdef __x86_64__
+                p.dofpr_addr     = (uint64_t) pd->probe->isenabled_addr;
+#elif __i386__
+                p.dofpr_addr     = (uint32_t) pd->probe->isenabled_addr;
+#else
+#error "only x86_64 and i386 supported"
+#endif
+                p.dofpr_func     = usdt_strtab_add(strtab, pd->function);
+                p.dofpr_name     = usdt_strtab_add(strtab, pd->name);
+                p.dofpr_nargv    = argv;
+                p.dofpr_xargv    = argv;
+                p.dofpr_argidx   = argidx;
+                p.dofpr_offidx   = offidx;
+                p.dofpr_nargc    = argc;
+                p.dofpr_xargc    = argc;
+                p.dofpr_noffs    = 1;
+                p.dofpr_enoffidx = offidx;
+                p.dofpr_nenoffs  = 1;
+
+                usdt_dof_section_add_data(probes, &p, sizeof(dof_probe_t));
                 probes->entsize = sizeof(dof_probe_t);
+
+                argidx += argc;
+                offidx++;
         }
 
         return (0);

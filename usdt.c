@@ -19,7 +19,6 @@ usdt_create_provider(const char *name)
 
         provider->name = strdup(name);
         provider->probedefs = NULL;
-        provider->probes = NULL;
 
         return provider;
 }
