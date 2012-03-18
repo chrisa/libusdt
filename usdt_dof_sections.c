@@ -1,7 +1,5 @@
 #include "usdt.h"
 
-#include <stdlib.h>
-
 int
 usdt_dof_probes_sect(usdt_dof_section_t *probes,
                      usdt_provider_t *provider, usdt_strtab_t *strtab)

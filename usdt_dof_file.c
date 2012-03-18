@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 static uint8_t
-_dof_version(uint8_t header_version)
+dof_version(uint8_t header_version)
 {
         uint8_t dof_version;
         /* DOF versioning: Apple always needs version 3, but Solaris can use
@@ -30,7 +30,7 @@ _dof_version(uint8_t header_version)
 static const char *helper = "/dev/dtracehelper";
 
 static int
-_loaddof(int fd, dof_helper_t *dh)
+load_dof(int fd, dof_helper_t *dh)
 {
         int ret;
         uint8_t buffer[sizeof(dof_ioctl_data_t) + sizeof(dof_helper_t)];
@@ -51,7 +51,9 @@ _loaddof(int fd, dof_helper_t *dh)
 /* ignore Sol10 GA ... */
 static const char *helper = "/dev/dtrace/helper";
 
-static int _loaddof(int fd, dof_helper_t *dh) {
+static int
+load_dof(int fd, dof_helper_t *dh)
+{
         return ioctl(fd, DTRACEHIOC_ADDDOF, dh);
 }
 
@@ -71,7 +73,7 @@ usdt_dof_file_load(usdt_dof_file_t *file)
         (void) snprintf(dh.dofhp_mod, sizeof (dh.dofhp_mod), "module");
 
         fd = open(helper, O_RDWR);
-        file->gen = _loaddof(fd, &dh);
+        file->gen = load_dof(fd, &dh);
 
         (void) close(fd);
 }
@@ -105,6 +107,65 @@ pad_section(usdt_dof_section_t *sec)
         }
 }
 
+static void
+dof_header(dof_hdr_t *header)
+{
+        int i;
+
+        header->dofh_ident[DOF_ID_MAG0] = DOF_MAG_MAG0;
+        header->dofh_ident[DOF_ID_MAG1] = DOF_MAG_MAG1;
+        header->dofh_ident[DOF_ID_MAG2] = DOF_MAG_MAG2;
+        header->dofh_ident[DOF_ID_MAG3] = DOF_MAG_MAG3;
+
+        header->dofh_ident[DOF_ID_MODEL]    = DOF_MODEL_NATIVE;
+        header->dofh_ident[DOF_ID_ENCODING] = DOF_ENCODE_NATIVE;
+        header->dofh_ident[DOF_ID_VERSION]  = dof_version(2);
+        header->dofh_ident[DOF_ID_DIFVERS]  = DIF_VERSION;
+        header->dofh_ident[DOF_ID_DIFIREG]  = DIF_DIR_NREGS;
+        header->dofh_ident[DOF_ID_DIFTREG]  = DIF_DTR_NREGS;
+
+        for (i = DOF_ID_PAD; i < DOF_ID_SIZE; i++)
+                header->dofh_ident[i] = 0;
+
+        header->dofh_flags = 0;
+
+        header->dofh_hdrsize = sizeof(dof_hdr_t);
+        header->dofh_secsize = sizeof(dof_sec_t);
+        header->dofh_secoff = sizeof(dof_hdr_t);
+
+        header->dofh_loadsz = 0;
+        header->dofh_filesz = 0;
+        header->dofh_pad = 0;
+}
+
+static size_t
+add_header(usdt_dof_file_t *file, size_t offset, usdt_dof_section_t *section)
+{
+        dof_sec_t header;
+
+        header.dofs_flags   = section->flags;
+        header.dofs_type    = section->type;
+        header.dofs_offset  = section->offset;
+        header.dofs_size    = section->size;
+        header.dofs_entsize = section->entsize;
+        header.dofs_align   = section->align;
+
+        memcpy((file->dof + offset), &header, sizeof(dof_sec_t));
+        return (offset + sizeof(dof_sec_t));
+}
+
+static size_t
+add_section(usdt_dof_file_t *file, size_t offset, usdt_dof_section_t *section)
+{
+        if (section->pad > 0) {
+                memcpy((file->dof + offset), "\0", section->pad);
+                offset += section->pad;
+        }
+
+        memcpy((file->dof + offset), section->data, section->size);
+        return (offset + section->size);
+}
+
 void
 usdt_dof_file_generate(usdt_dof_file_t *file, usdt_strtab_t *strtab)
 {
@@ -113,27 +174,8 @@ usdt_dof_file_generate(usdt_dof_file_t *file, usdt_strtab_t *strtab)
         uint64_t loadsz;
         usdt_dof_section_t *sec;
         size_t offset;
-        char *h;
 
-        memset(&header, 0, sizeof(header));
-
-        header.dofh_ident[DOF_ID_MAG0] = DOF_MAG_MAG0;
-        header.dofh_ident[DOF_ID_MAG1] = DOF_MAG_MAG1;
-        header.dofh_ident[DOF_ID_MAG2] = DOF_MAG_MAG2;
-        header.dofh_ident[DOF_ID_MAG3] = DOF_MAG_MAG3;
-
-        header.dofh_ident[DOF_ID_MODEL]    = DOF_MODEL_NATIVE;
-        header.dofh_ident[DOF_ID_ENCODING] = DOF_ENCODE_NATIVE;
-        header.dofh_ident[DOF_ID_DIFVERS]  = DIF_VERSION;
-        header.dofh_ident[DOF_ID_DIFIREG]  = DIF_DIR_NREGS;
-        header.dofh_ident[DOF_ID_DIFTREG]  = DIF_DTR_NREGS;
-
-        /* default 2, will be 3 on OSX */
-        header.dofh_ident[DOF_ID_VERSION] = _dof_version(2);
-        header.dofh_hdrsize = sizeof(dof_hdr_t);
-        header.dofh_secsize = sizeof(dof_sec_t);
-        header.dofh_secoff = sizeof(dof_hdr_t);
-
+        dof_header(&header);
         header.dofh_secnum = 6;
 
         filesz = sizeof(dof_hdr_t) + (sizeof(dof_sec_t) * header.dofh_secnum);
@@ -160,33 +202,15 @@ usdt_dof_file_generate(usdt_dof_file_t *file, usdt_strtab_t *strtab)
 
         offset = sizeof(dof_hdr_t);
 
-        h = usdt_strtab_header(strtab);
-        memcpy((file->dof + offset), h, sizeof(dof_sec_t));
-        free(h);
-        offset += sizeof(dof_sec_t);
+        offset = add_header(file, offset, (usdt_dof_section_t *)strtab);
 
-        for (sec = file->sections; sec != NULL; sec = sec->next) {
-                h = usdt_dof_section_header(sec);
-                memcpy((file->dof + offset), h, sizeof(dof_sec_t));
-                free(h);
-                offset += sizeof(dof_sec_t);
-        }
+        for (sec = file->sections; sec != NULL; sec = sec->next)
+                offset = add_header(file, offset, sec);
 
-        if (strtab->pad > 0) {
-                memcpy((file->dof + offset), "\0", strtab->pad);
-                offset += strtab->pad;
-        }
-        memcpy((file->dof + offset), strtab->data, strtab->size);
-        offset += strtab->size;
+        offset = add_section(file, offset, (usdt_dof_section_t *)strtab);
 
-        for (sec = file->sections; sec != NULL; sec = sec->next) {
-                if (sec->pad > 0) {
-                        memcpy((file->dof + offset), "\0", sec->pad);
-                        offset += sec->pad;
-                }
-                memcpy((file->dof + offset), sec->data, sec->size);
-                offset += sec->size;
-        }
+        for (sec = file->sections; sec != NULL; sec = sec->next)
+                offset = add_section(file, offset, sec);
 }
 
 usdt_dof_file_t *

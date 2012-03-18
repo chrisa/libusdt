@@ -75,47 +75,6 @@ usdt_dof_section_init(usdt_dof_section_t *section, uint32_t type, dof_secidx_t i
         return (0);
 }
 
-char *
-usdt_dof_section_header(usdt_dof_section_t *section)
-{
-        char *dof;
-        dof_sec_t header;
-
-        header.dofs_flags   = section->flags;
-        header.dofs_type    = section->type;
-        header.dofs_offset  = section->offset;
-        header.dofs_size    = section->size;
-        header.dofs_entsize = section->entsize;
-        header.dofs_align   = section->align;
-
-        if ((dof = malloc(sizeof(dof_sec_t))) == NULL)
-                return (NULL);
-
-        memcpy(dof, &header, sizeof(dof_sec_t));
-
-        return dof;
-}
-
-char *
-usdt_strtab_header(usdt_strtab_t *strtab)
-{
-        char *dof;
-        dof_sec_t header;
-
-        header.dofs_flags   = strtab->flags;
-        header.dofs_type    = strtab->type;
-        header.dofs_offset  = strtab->offset;
-        header.dofs_size    = strtab->size;
-        header.dofs_entsize = strtab->entsize;
-        header.dofs_align   = strtab->align;
-
-        if ((dof = malloc(sizeof(dof_sec_t))) == NULL)
-            return (NULL);
-
-        memcpy(dof, &header, sizeof(dof_sec_t));
-        return dof;
-}
-
 int
 usdt_strtab_init(usdt_strtab_t *strtab, dof_secidx_t index)
 {

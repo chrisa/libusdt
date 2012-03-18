@@ -78,7 +78,6 @@ int usdt_dof_section_init(usdt_dof_section_t *section,
                           uint32_t type, dof_secidx_t index);
 int usdt_dof_section_add_data(usdt_dof_section_t *section,
                               void *data, size_t length);
-char *usdt_dof_section_header(usdt_dof_section_t *section);
 
 typedef struct usdt_strtab {
         dof_secidx_t index;
