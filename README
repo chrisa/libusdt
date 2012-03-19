@@ -29,11 +29,22 @@ Is-enabled probes are supported and exposed in the API.
 There is a "test" target which runs a number of tests of the library,
 for which perl is required.
 
+OS X builds are Universal by default, and on Solaris, the ARCH
+variable may be set to either i386 or x86_64 to force a particular
+build.
+
 To do:
+
+Platform support:
 
  * add support for FreeBSD 9.0 i386 / x86_64
  * add support for Mac OS X PowerPC
  * add support for Solaris SPARC
+
+Features:
+
+ * add a "low level" API, allowing alternative provision of
+   tracepoints for closer integration with language VMs. 
 
 [1] https://github.com/chrisa/ruby-dtrace
 [2] https://github.com/chrisa/perl-dtrace
