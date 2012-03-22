@@ -22,7 +22,8 @@ exposes the stubs, through which the probes may be fired.
 Status:
 
 The implementation here works as shown in test_usdt.c on Mac OS X,
-i386 and x86_64, and on Solaris-like systems, i386 and x86_64.
+i386 and x86_64, on Solaris-like systems, i386 and x86_64 and on
+FreeBSD, x86_64 only (so far).
 
 Is-enabled probes are supported and exposed in the API.
 
@@ -33,11 +34,17 @@ OS X builds are Universal by default, and on Solaris, the ARCH
 variable may be set to either i386 or x86_64 to force a particular
 build.
 
+FreeBSD builds suffer from broken argument handling; this is a known
+issue with the current state of DTrace generally on FreeBSD: only the
+first four arguments work reliably. See:
+
+  http://wiki.freebsd.org/DTraceTODO
+
 To do:
 
 Platform support:
 
- * add support for FreeBSD 9.0 i386 / x86_64
+ * add support for FreeBSD 9.0 i386
  * add support for Mac OS X PowerPC
  * add support for Solaris SPARC
 

@@ -12,6 +12,13 @@ CFLAGS += -m64
 endif
 endif
 
+ifeq ($(UNAME), FreeBSD)
+CFLAGS += -Wno-error=unknown-pragmas  -I/usr/src/sys/cddl/compat/opensolaris -I/usr/src/sys/cddl/contrib/opensolaris/uts/common
+ifeq ($(ARCH), i386)
+CFLAGS += -m32
+endif
+endif
+
 objects = usdt.o usdt_dof_file.o usdt_tracepoints.o usdt_probe.o usdt_dof.o usdt_dof_sections.o
 headers = usdt.h usdt_internal.h
 
@@ -42,6 +49,16 @@ usdt_tracepoints.o: usdt_tracepoints_i386.s
 	as -o usdt_tracepoints.o usdt_tracepoints_i386.s
 endif
 
+endif
+endif
+
+ifeq ($(UNAME), FreeBSD)
+ifeq ($(ARCH), amd64)
+usdt_tracepoints.o: usdt_tracepoints_x86_64.s
+	as --64 -o usdt_tracepoints.o usdt_tracepoints_x86_64.s
+else
+usdt_tracepoints.o: usdt_tracepoints_i386.s
+	as --32 -o usdt_tracepoints.o usdt_tracepoints_i386.s
 endif
 endif
 

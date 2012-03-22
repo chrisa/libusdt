@@ -45,8 +45,8 @@ _usdt_probe_args:
         movl    %esp,%ebp
         subl    $8,%esp
         subl    $8,%esp
-        movl    8(%ebp),%ebx    // addr -> %ebx
-        movl    0xc(%ebp),%ecx  // argc -> %ecx
+        movl    8(%ebp),%ebx 
+        movl    0xc(%ebp),%ecx
         test    %ecx,%ecx
         je      fire
 args:   movl    %ecx,%eax

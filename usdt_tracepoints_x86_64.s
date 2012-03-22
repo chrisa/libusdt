@@ -18,7 +18,7 @@ usdt_tracepoint_isenabled:
 _usdt_tracepoint_isenabled:
         pushq   %rbp
         movq    %rsp, %rbp
-        xorl    %eax, %eax
+        xorq    %rax, %rax
         nop
         nop
         leave
@@ -42,30 +42,30 @@ usdt_probe_args:
 _usdt_probe_args:
         pushq   %rbp
         movq    %rsp,%rbp
-        movq    %rdi,%r12        // addr  -> %r12
-        movl    %esi,%ebx        // argc  -> %ebx
-        movq    %rdx,%r11        // nargv -> %r11
-        test    %ebx,%ebx
+        movq    %rdi,%r12
+        movq    %rsi,%rbx
+        movq    %rdx,%r11
+        test    %rbx,%rbx
         je      fire
         movq    (%r11),%rdi
-        dec     %ebx
-        test    %ebx,%ebx
+        dec     %rbx
+        test    %rbx,%rbx
         je      fire
         movq    8(%r11),%rsi
-        dec     %ebx
-        test    %ebx,%ebx
+        dec     %rbx
+        test    %rbx,%rbx
         je      fire
         movq    16(%r11),%rdx
-        dec     %ebx
-        test    %ebx,%ebx
+        dec     %rbx
+        test    %rbx,%rbx
         je      fire
         movq    24(%r11),%rcx
-        dec     %ebx
-        test    %ebx,%ebx
+        dec     %rbx
+        test    %rbx,%rbx
         je      fire
         movq    32(%r11),%r8
-        dec     %ebx
-        test    %ebx,%ebx
+        dec     %rbx
+        test    %rbx,%rbx
         je      fire
         movq    40(%r11),%r9
 fire:   jmp     *%r12

@@ -30,7 +30,7 @@ usdt_is_enabled_offset(usdt_probe_t *probe, char *dof)
         return (offset);
 }
 
-#else /* solaris */
+#else /* solaris and freebsd */
 
 uint32_t
 usdt_probe_offset(usdt_probe_t *probe, char *dof, uint8_t argc)

@@ -9,8 +9,8 @@
 #include <stdint.h>
 
 #ifndef __APPLE__
+/* solaris and freebsd */
 #include <stdlib.h>
-#include <malloc.h>
 #endif
 
 #define FUNC_SIZE 32
