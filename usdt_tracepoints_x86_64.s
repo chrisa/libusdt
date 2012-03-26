@@ -30,6 +30,10 @@ _usdt_tracepoint_probe:
         nop
         nop
         nop
+        popq %r11
+        popq %rbx
+        popq %r12
+        addq $0x18,%rsp
         leave
         ret
 
@@ -42,6 +46,10 @@ usdt_probe_args:
 _usdt_probe_args:
         pushq   %rbp
         movq    %rsp,%rbp
+        subq    $0x18,%rsp
+        pushq   %r12
+        pushq   %rbx
+        pushq   %r11
         movq    %rdi,%r12
         movq    %rsi,%rbx
         movq    %rdx,%r11
