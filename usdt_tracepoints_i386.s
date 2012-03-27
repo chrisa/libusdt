@@ -11,8 +11,11 @@
         .globl _usdt_tracepoint_isenabled
         .globl usdt_tracepoint_probe
         .globl _usdt_tracepoint_probe
+        .globl usdt_tracepoint_end
+        .globl _usdt_tracepoint_end
         .globl usdt_probe_args
         .globl _usdt_probe_args
+
 usdt_tracepoint_isenabled:
 _usdt_tracepoint_isenabled:
         pushl   %ebp
@@ -32,6 +35,8 @@ _usdt_tracepoint_probe:
         nop
         addl    $0x20,%esp
         leave
+usdt_tracepoint_end:
+_usdt_tracepoint_end:
         ret
 
  /*

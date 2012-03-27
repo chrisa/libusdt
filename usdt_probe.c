@@ -49,6 +49,9 @@ usdt_is_enabled_offset(usdt_probe_t *probe, char *dof)
 int
 usdt_create_tracepoints(usdt_probe_t *probe)
 {
+        /* ensure that the tracepoints will fit the heap we're allocating */
+        assert((usdt_tracepoint_end - usdt_tracepoint_isenabled) < FUNC_SIZE);
+
         if ((probe->isenabled_addr = valloc(FUNC_SIZE)) == NULL) {
                 return (-1);
         }

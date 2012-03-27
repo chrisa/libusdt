@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <assert.h>
 
 #ifndef __APPLE__
 /* solaris and freebsd */
@@ -19,6 +20,7 @@
 
 extern void usdt_tracepoint_isenabled(void);
 extern void usdt_tracepoint_probe(void);
+extern void usdt_tracepoint_end(void);
 extern void usdt_probe_args(void *, int, void**);
 
 /*
