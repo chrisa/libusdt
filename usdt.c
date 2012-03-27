@@ -69,6 +69,7 @@ usdt_create_probe(const char *func, const char *name, size_t argc, const char **
 
         p->function = strdup(func);
         p->name = strdup(name);
+        p->argc = argc;
 
         for (i = 0; i < 6; i++) {
                 if (i < argc && types[i] != NULL) {
@@ -179,7 +180,7 @@ usdt_is_enabled(usdt_probe_t *probe)
 }
 
 void
-usdt_fire_probe(usdt_probe_t *probe, int argc, void **nargv)
+usdt_fire_probe(usdt_probe_t *probe, size_t argc, void **nargv)
 {
         usdt_probe_args(probe->probe_addr, argc, nargv);
 }

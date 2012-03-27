@@ -19,11 +19,12 @@ typedef struct usdt_probe {
 } usdt_probe_t;
 
 int usdt_is_enabled(usdt_probe_t *probe);
-void usdt_fire_probe(usdt_probe_t *probe, int argc, void **argv);
+void usdt_fire_probe(usdt_probe_t *probe, size_t argc, void **argv);
 
 typedef struct usdt_probedef {
         const char *name;
         const char *function;
+        size_t argc;
         usdt_argtype_t types[6];
         struct usdt_probe *probe;
         struct usdt_probedef *next;
