@@ -7,6 +7,7 @@ CC=cc
 
 ifeq ($(UNAME), SunOS)
 PATH +=:/usr/perl5/5.10.0/bin
+CFLAGS +=-fPIC
 ifeq ($(ARCH), x86_64)
 CFLAGS += -m64
 endif
