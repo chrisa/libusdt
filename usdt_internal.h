@@ -23,14 +23,6 @@ extern void usdt_tracepoint_probe(void);
 extern void usdt_tracepoint_end(void);
 extern void usdt_probe_args(void *, int, void**);
 
-/*
-  typedef enum usdt_argtype {
-  USDT_ARGTYPE_NONE = 0,
-  USDT_ARGTYPE_STRING,
-  USDT_ARGTYPE_INTEGER
-  } usdt_argtype_t;
-*/
-
 uint32_t usdt_probe_offset(usdt_probe_t *probe, char *dof, uint8_t argc);
 uint32_t usdt_is_enabled_offset(usdt_probe_t *probe, char *dof);
 int usdt_create_tracepoints(usdt_probe_t *probe);

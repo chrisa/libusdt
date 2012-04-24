@@ -7,10 +7,16 @@
 int main(int argc, char **argv) {
         usdt_provider_t *provider;
         usdt_probedef_t *probedef;
-        char *char_argv[6] = { "a", "b", "c", "d", "e", "f" };
-        int int_argv[6] = { 1, 2, 3, 4, 5, 6 };
+        char char_argv[USDT_ARG_MAX];
+        int int_argv[USDT_ARG_MAX * 2];
         void **args;
         int i;
+        char buf[255];
+
+        for (i = 0; i < USDT_ARG_MAX; i++)
+                int_argv[i] = i + 1;
+        for (i = 0; i < USDT_ARG_MAX; i++)
+                char_argv[i] = (char) i + 65;
 
         if (argc < 3) {
                 fprintf(stderr, "usage: %s func name [types ...]\n", argv[0]);
@@ -21,10 +27,10 @@ int main(int argc, char **argv) {
                 args = malloc((argc-3) * sizeof(void *));
         }
 
-        for (i = 0; i < 6; i++) {
+        for (i = 0; i < USDT_ARG_MAX; i++) {
                 if (argv[i+3] != NULL && i+3 < argc) {
                         if (strncmp("c", argv[i+3], 1) == 0) {
-                                args[i] = (void *)char_argv[i];
+                                args[i] = (void *)strndup(&char_argv[i], 1);
                                 argv[i+3] = strdup("char *");
                         }
                         if (strncmp("i", argv[i+3], 1) == 0) {
@@ -51,6 +57,10 @@ int main(int argc, char **argv) {
                 fprintf(stderr, "unable to enable provider: %s\n", usdt_errstr(provider));
                 exit (1);
         }
+
+        fprintf(stdout, "enabled\n");
+        fflush(stdout);
+        fgets(buf, 255, stdin);
 
         if (usdt_is_enabled(probedef->probe)) {
                 usdt_fire_probe(probedef->probe, (argc-3), (void **)args);

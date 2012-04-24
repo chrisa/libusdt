@@ -39,7 +39,7 @@ usdt_tracepoint_end:
 _usdt_tracepoint_end:
         ret
 
- /*
+/*
  * Probe argument marshalling, i386 style
  *
  */

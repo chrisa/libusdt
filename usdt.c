@@ -41,7 +41,7 @@ usdt_create_probe_varargs(const char *func, const char *name, ...)
 
         va_start(ap, name);
 
-        for (i = 0; i < 6; i++) {
+        for (i = 0; i < USDT_ARG_MAX; i++) {
                 if ((type = va_arg(ap, const char *)) != NULL) {
                         if (strncmp("char *", type, 6)) {
                                 p->types[i] = USDT_ARGTYPE_STRING;
@@ -71,7 +71,7 @@ usdt_create_probe(const char *func, const char *name, size_t argc, const char **
         p->name = strdup(name);
         p->argc = argc;
 
-        for (i = 0; i < 6; i++) {
+        for (i = 0; i < USDT_ARG_MAX; i++) {
                 if (i < argc && types[i] != NULL) {
                         if (strncmp("char *", types[i], 6) == 0)
                                 p->types[i] = USDT_ARGTYPE_STRING;
@@ -106,7 +106,7 @@ usdt_probedef_argc(usdt_probedef_t *probedef)
         uint8_t args = 0;
         uint8_t i;
 
-        for (i = 0; probedef->types[i] != USDT_ARGTYPE_NONE && i < 6; i++)
+        for (i = 0; probedef->types[i] != USDT_ARGTYPE_NONE && i < USDT_ARG_MAX; i++)
                 args++;
 
         return args;

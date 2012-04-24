@@ -17,7 +17,7 @@ usdt_dof_probes_sect(usdt_dof_section_t *probes,
                 argc = 0;
                 argv = 0;
 
-                for (i = 0; pd->types[i] != USDT_ARGTYPE_NONE && i < 6; i++) {
+                for (i = 0; pd->types[i] != USDT_ARGTYPE_NONE && i < USDT_ARG_MAX; i++) {
                         switch(pd->types[i]) {
                         case USDT_ARGTYPE_INTEGER:
                                 type = usdt_strtab_add(strtab, "int");
@@ -78,7 +78,7 @@ usdt_dof_prargs_sect(usdt_dof_section_t *prargs, usdt_provider_t *provider)
         prargs->entsize = 1;
 
         for (pd = provider->probedefs; pd != NULL; pd = pd->next) {
-                for (i = 0; pd->types[i] != USDT_ARGTYPE_NONE && i < 6; i++)
+                for (i = 0; pd->types[i] != USDT_ARGTYPE_NONE && i < USDT_ARG_MAX; i++)
                         usdt_dof_section_add_data(prargs, &i, 1);
         }
         if (prargs->size == 0) {
@@ -147,21 +147,32 @@ usdt_dof_provider_sect(usdt_dof_section_t *provider_s, usdt_provider_t *provider
         p.dofpv_proffs   = 3;
         p.dofpv_prenoffs = 4;
         p.dofpv_name     = 1; // provider name always first strtab entry.
-        p.dofpv_provattr = DOF_ATTR(DTRACE_STABILITY_EVOLVING,
-                                    DTRACE_STABILITY_EVOLVING,
-                                    DTRACE_STABILITY_EVOLVING);
-        p.dofpv_modattr  = DOF_ATTR(DTRACE_STABILITY_PRIVATE,
-                                    DTRACE_STABILITY_PRIVATE,
-                                    DTRACE_STABILITY_EVOLVING);
-        p.dofpv_funcattr = DOF_ATTR(DTRACE_STABILITY_PRIVATE,
-                                    DTRACE_STABILITY_PRIVATE,
-                                    DTRACE_STABILITY_EVOLVING);
-        p.dofpv_nameattr = DOF_ATTR(DTRACE_STABILITY_EVOLVING,
-                                    DTRACE_STABILITY_EVOLVING,
-                                    DTRACE_STABILITY_EVOLVING);
-        p.dofpv_argsattr = DOF_ATTR(DTRACE_STABILITY_EVOLVING,
-                                    DTRACE_STABILITY_EVOLVING,
-                                    DTRACE_STABILITY_EVOLVING);
+
+        /*
+         * Stability is something of a hack. Everything is marked *
+         * "stable" here to permit use of the "args" array, which is *
+         * needed to access arguments past "arg9".
+         *
+         * It should be up to the creator of the provider to decide
+         * this, though, and it should be possible to set the
+         * appropriate stability at creation time.
+         */
+
+        p.dofpv_provattr = DOF_ATTR(DTRACE_STABILITY_STABLE,
+                                    DTRACE_STABILITY_STABLE,
+                                    DTRACE_STABILITY_STABLE);
+        p.dofpv_modattr  = DOF_ATTR(DTRACE_STABILITY_STABLE,
+                                    DTRACE_STABILITY_STABLE,
+                                    DTRACE_STABILITY_STABLE);
+        p.dofpv_funcattr = DOF_ATTR(DTRACE_STABILITY_STABLE,
+                                    DTRACE_STABILITY_STABLE,
+                                    DTRACE_STABILITY_STABLE);
+        p.dofpv_nameattr = DOF_ATTR(DTRACE_STABILITY_STABLE,
+                                    DTRACE_STABILITY_STABLE,
+                                    DTRACE_STABILITY_STABLE);
+        p.dofpv_argsattr = DOF_ATTR(DTRACE_STABILITY_STABLE,
+                                    DTRACE_STABILITY_STABLE,
+                                    DTRACE_STABILITY_STABLE);
 
         if ((usdt_dof_section_add_data(provider_s, &p, sizeof(p))) < 0) {
                 usdt_error(provider, USDT_ERROR_MALLOC);

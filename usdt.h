@@ -6,6 +6,8 @@ typedef uint8_t usdt_argtype_t;
 #define USDT_ARGTYPE_STRING  1
 #define USDT_ARGTYPE_INTEGER 2
 
+#define USDT_ARG_MAX 32
+
 typedef enum usdt_error {
         USDT_ERROR_MALLOC = 0,
         USDT_ERROR_VALLOC,
@@ -25,7 +27,7 @@ typedef struct usdt_probedef {
         const char *name;
         const char *function;
         size_t argc;
-        usdt_argtype_t types[6];
+        usdt_argtype_t types[USDT_ARG_MAX];
         struct usdt_probe *probe;
         struct usdt_probedef *next;
 } usdt_probedef_t;

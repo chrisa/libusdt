@@ -32,8 +32,8 @@ _usdt_tracepoint_probe:
         nop
         nop
         nop
-        popq %r11
         popq %rbx
+        popq %r13
         popq %r12
         addq $0x18,%rsp
         leave
@@ -52,32 +52,51 @@ _usdt_probe_args:
         movq    %rsp,%rbp
         subq    $0x18,%rsp
         pushq   %r12
+        pushq   %r13
         pushq   %rbx
-        pushq   %r11
+
         movq    %rdi,%r12
         movq    %rsi,%rbx
         movq    %rdx,%r11
+        movq    $0,%r13
+
         test    %rbx,%rbx
         je      fire
         movq    (%r11),%rdi
         dec     %rbx
         test    %rbx,%rbx
         je      fire
-        movq    8(%r11),%rsi
+        addq    $8,%r11
+        movq    (%r11),%rsi
         dec     %rbx
         test    %rbx,%rbx
         je      fire
-        movq    16(%r11),%rdx
+        addq    $8,%r11
+        movq    (%r11),%rdx
         dec     %rbx
         test    %rbx,%rbx
         je      fire
-        movq    24(%r11),%rcx
+        addq    $8,%r11
+        movq    (%r11),%rcx
         dec     %rbx
         test    %rbx,%rbx
         je      fire
-        movq    32(%r11),%r8
+        addq    $8,%r11
+        movq    (%r11),%r8
         dec     %rbx
         test    %rbx,%rbx
         je      fire
-        movq    40(%r11),%r9
+        addq    $8,%r11
+        movq    (%r11),%r9
+
+moreargs:
+        dec     %rbx
+        test    %rbx,%rbx
+        je      fire
+        addq    $8,%r11
+        movq    (%r11),%rax
+        movq    %rax,(%rsp,%r13)
+        addq    $8,%r13
+        jmp     moreargs
+
 fire:   jmp     *%r12
