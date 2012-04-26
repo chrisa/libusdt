@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2012, Chris Andrews. All rights reserved.
+ */
+
 #include <stdint.h>
 #include <unistd.h>
 

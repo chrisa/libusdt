@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2012, Chris Andrews. All rights reserved.
+ */
+
+/*
  * Stub functions containing DTrace tracepoints for probes and
  * is-enabled probes. These functions are copied for each probe
  * dynamically created.

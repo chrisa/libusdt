@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2012, Chris Andrews. All rights reserved.
+ */
+
 #include "usdt.h"
 
 #include <stdio.h>

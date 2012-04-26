@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2012, Chris Andrews. All rights reserved.
+ */
+
 #include "usdt_internal.h"
 
 #ifdef __APPLE__

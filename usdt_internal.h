@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2012, Chris Andrews. All rights reserved.
+ */
+
 #include <sys/dtrace.h>
 #include <sys/types.h>
 #include <sys/mman.h>
