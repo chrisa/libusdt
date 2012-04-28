@@ -68,6 +68,9 @@ usdt_create_probe(const char *func, const char *name, size_t argc, const char **
         int i;
         usdt_probedef_t *p;
 
+        if (argc > USDT_ARG_MAX)
+                argc = USDT_ARG_MAX;
+
         if ((p = malloc(sizeof *p)) == NULL)
                 return (NULL);
 
@@ -75,16 +78,11 @@ usdt_create_probe(const char *func, const char *name, size_t argc, const char **
         p->name = strdup(name);
         p->argc = argc;
 
-        for (i = 0; i < USDT_ARG_MAX; i++) {
-                if (i < argc && types[i] != NULL) {
-                        if (strncmp("char *", types[i], 6) == 0)
-                                p->types[i] = USDT_ARGTYPE_STRING;
-                        if (strncmp("int", types[i], 3) == 0)
-                                p->types[i] = USDT_ARGTYPE_INTEGER;
-                }
-                else {
-                        p->types[i] = USDT_ARGTYPE_NONE;
-                }
+        for (i = 0; i < argc; i++) {
+                if (strncmp("char *", types[i], 6) == 0)
+                        p->types[i] = USDT_ARGTYPE_STRING;
+                if (strncmp("int", types[i], 3) == 0)
+                        p->types[i] = USDT_ARGTYPE_INTEGER;
         }
 
         return (p);
