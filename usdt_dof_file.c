@@ -158,6 +158,9 @@ usdt_dof_file_load(usdt_dof_file_t *file, const char *module)
         if ((close(fd)) < 0)
                 return (-1);
 
+        if (file->gen < 0)
+                return (-1);
+
         return (0);
 }
 
