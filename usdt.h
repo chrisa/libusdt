@@ -16,7 +16,8 @@ typedef enum usdt_error {
         USDT_ERROR_MALLOC = 0,
         USDT_ERROR_VALLOC,
         USDT_ERROR_NOPROBES,
-        USDT_ERROR_LOADDOF
+        USDT_ERROR_LOADDOF,
+        USDT_ERROR_ALREADYENABLED
 } usdt_error_t;
 
 typedef struct usdt_probe {
@@ -45,6 +46,7 @@ typedef struct usdt_provider {
         const char *module;
         usdt_probedef_t *probedefs;
         char *error;
+        int enabled;
 } usdt_provider_t;
 
 usdt_provider_t *usdt_create_provider(const char *name, const char *module);

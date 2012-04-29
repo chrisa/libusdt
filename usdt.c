@@ -14,7 +14,8 @@ char *usdt_errors[] = {
   "failed to allocate memory",
   "failed to allocate page-aligned memory",
   "no probes defined",
-  "failed to load DOF: %s"
+  "failed to load DOF: %s",
+  "provider is already enabled"
 };
 
 usdt_provider_t *
@@ -28,6 +29,7 @@ usdt_create_provider(const char *name, const char *module)
         provider->name = strdup(name);
         provider->module = strdup(module);
         provider->probedefs = NULL;
+        provider->enabled = 0;
 
         return provider;
 }
@@ -80,6 +82,7 @@ usdt_create_probe(const char *func, const char *name, size_t argc, const char **
         p->function = strdup(func);
         p->name = strdup(name);
         p->argc = argc;
+        p->probe = NULL;
 
         for (i = 0; i < argc; i++) {
                 if (strncmp("char *", types[i], 6) == 0)
@@ -114,6 +117,11 @@ usdt_provider_enable(usdt_provider_t *provider)
         int i;
         size_t size;
         usdt_dof_section_t sects[5];
+
+        if (provider->enabled == 1) {
+                usdt_error(provider, USDT_ERROR_ALREADYENABLED);
+                return (0); // not fatal
+        }
 
         if (provider->probedefs == NULL) {
                 usdt_error(provider, USDT_ERROR_NOPROBES);
@@ -163,19 +171,24 @@ usdt_provider_enable(usdt_provider_t *provider)
                 return (-1);
         }
 
+        provider->enabled = 1;
         return (0);
 }
 
 int
 usdt_is_enabled(usdt_probe_t *probe)
 {
-        return (*probe->isenabled_addr)();
+        if (probe != NULL)
+                return (*probe->isenabled_addr)();
+        else
+                return 0;
 }
 
 void
 usdt_fire_probe(usdt_probe_t *probe, size_t argc, void **nargv)
 {
-        usdt_probe_args(probe->probe_addr, argc, nargv);
+        if (probe != NULL)
+                usdt_probe_args(probe->probe_addr, argc, nargv);
 }
 
 static void
