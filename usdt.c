@@ -6,12 +6,15 @@
 
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
+#include <errno.h>
+#include <stdio.h>
 
 char *usdt_errors[] = {
   "failed to allocate memory",
   "failed to allocate page-aligned memory",
   "no probes defined",
-  "failed to load DOF"
+  "failed to load DOF: %s"
 };
 
 usdt_provider_t *
@@ -156,7 +159,7 @@ usdt_provider_enable(usdt_provider_t *provider)
         usdt_dof_file_generate(file, &strtab);
 
         if ((usdt_dof_file_load(file, provider->module)) < 0) {
-                usdt_error(provider, USDT_ERROR_LOADDOF);
+                usdt_error(provider, USDT_ERROR_LOADDOF, strerror(errno));
                 return (-1);
         }
 
@@ -175,10 +178,20 @@ usdt_fire_probe(usdt_probe_t *probe, size_t argc, void **nargv)
         usdt_probe_args(probe->probe_addr, argc, nargv);
 }
 
-void
-usdt_error(usdt_provider_t *provider, usdt_error_t error)
+static void
+usdt_verror(usdt_provider_t *provider, usdt_error_t error, va_list argp)
 {
-        provider->error = usdt_errors[error];
+        vasprintf(&provider->error, usdt_errors[error], argp);
+}
+
+void
+usdt_error(usdt_provider_t *provider, usdt_error_t error, ...)
+{
+        va_list argp;
+
+        va_start(argp, error);
+        usdt_verror(provider, error, argp);
+        va_end(argp);
 }
 
 char *
