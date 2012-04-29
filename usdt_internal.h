@@ -31,8 +31,6 @@ uint32_t usdt_probe_offset(usdt_probe_t *probe, char *dof, uint8_t argc);
 uint32_t usdt_is_enabled_offset(usdt_probe_t *probe, char *dof);
 int usdt_create_tracepoints(usdt_probe_t *probe);
 
-uint8_t usdt_probedef_argc(usdt_probedef_t *probedef);
-
 typedef struct usdt_dof_section {
         dof_secidx_t index;
         uint32_t type;

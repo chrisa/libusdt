@@ -21,7 +21,7 @@ usdt_dof_probes_sect(usdt_dof_section_t *probes,
                 argc = 0;
                 argv = 0;
 
-                for (i = 0; pd->types[i] != USDT_ARGTYPE_NONE && i < USDT_ARG_MAX; i++) {
+                for (i = 0; i < pd->argc; i++) {
                         switch(pd->types[i]) {
                         case USDT_ARGTYPE_INTEGER:
                                 type = usdt_strtab_add(strtab, "int");
@@ -82,7 +82,7 @@ usdt_dof_prargs_sect(usdt_dof_section_t *prargs, usdt_provider_t *provider)
         prargs->entsize = 1;
 
         for (pd = provider->probedefs; pd != NULL; pd = pd->next) {
-                for (i = 0; pd->types[i] != USDT_ARGTYPE_NONE && i < USDT_ARG_MAX; i++)
+                for (i = 0; i < pd->argc; i++)
                         usdt_dof_section_add_data(prargs, &i, 1);
         }
         if (prargs->size == 0) {
@@ -107,7 +107,7 @@ usdt_dof_proffs_sect(usdt_dof_section_t *proffs,
         proffs->entsize = 4;
 
         for (pd = provider->probedefs; pd != NULL; pd = pd->next) {
-                off = usdt_probe_offset(pd->probe, dof, usdt_probedef_argc(pd));
+                off = usdt_probe_offset(pd->probe, dof, pd->argc);
                 if (usdt_dof_section_add_data(proffs, &off, 4) < 0) {
                         usdt_error(provider, USDT_ERROR_MALLOC);
                         return (-1);
