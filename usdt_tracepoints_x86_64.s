@@ -27,7 +27,7 @@ _usdt_tracepoint_isenabled:
         xorq    %rax, %rax
         nop
         nop
-        popq    %rbp
+        leave
         ret
 usdt_tracepoint_probe:
 _usdt_tracepoint_probe:
@@ -41,7 +41,7 @@ _usdt_tracepoint_probe:
         popq    %r14
         popq    %r13
         popq    %r12
-        popq    %rbp
+        leave
 usdt_tracepoint_end:
 _usdt_tracepoint_end:
         ret
