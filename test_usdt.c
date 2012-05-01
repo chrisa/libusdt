@@ -8,6 +8,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+static void
+fire_probe(usdt_probedef_t *probedef, int argc, void **argv)
+{
+        if (usdt_is_enabled(probedef->probe)) {
+                usdt_fire_probe(probedef->probe, argc, argv);
+        }
+}
+
 int main(int argc, char **argv) {
         usdt_provider_t *provider;
         usdt_probedef_t *probedef;
@@ -66,9 +74,7 @@ int main(int argc, char **argv) {
         fflush(stdout);
         fgets(buf, 255, stdin);
 
-        if (usdt_is_enabled(probedef->probe)) {
-                usdt_fire_probe(probedef->probe, (argc-3), (void **)args);
-        }
+        fire_probe(probedef, (argc-3), (void **)args);
 
         return 0;
 }

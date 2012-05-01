@@ -22,8 +22,9 @@ sub run_tests {
     my ($type, $start_arg) = @_;
     
     for my $i (0..$USDT_ARG_MAX) {
-        my ($status, $output) = run_dtrace('func', 'name', split(//, $type x $i));
-        is($status, 0, 'dtrace exit status is 0');
+        my ($t_status, $d_status, $output) = run_dtrace('func', 'name', split(//, $type x $i));
+        is($t_status, 0, 'test exit status is 0');
+        is($d_status, 0, 'dtrace exit status is 0');
         like($output, qr/func:name/, 'function and name match');
 
         my $arg = $start_arg;
@@ -78,28 +79,34 @@ sub run_dtrace {
     $d_err = gensym;
     $t_err = gensym;
 
+    #diag(join(' ', @t_cmd));
     my $t_pid = open3($t_wtr, $t_rdr, $t_err, @t_cmd);
     my $enabled = $t_rdr->getline;
 
     my @d_cmd = ('dtrace', '-p', $t_pid, '-n', $d);
 
+    #diag(join(' ', @d_cmd));
     my $d_pid = open3($d_wtr, $d_rdr, $d_err, @d_cmd);
     my $matched = $d_err->getline; # expect "matched 1 probe"
 
     $t_wtr->print("go\n");
     $t_wtr->flush;
     waitpid( $t_pid, 0 );
+    my $t_status = $? >> 8;
 
     my ($header, $output) = ($d_rdr->getline, $d_rdr->getline);
+    chomp $header;
+    chomp $output;
+    #diag("DTrace header: $header\n");
+    #diag("DTrace output: $output\n");
     waitpid( $d_pid, 0 );
 
-    my $status = $? >> 8;
-    if ($status > 0) {
-        print STDERR $matched;
-        while (!$d_err->eof) {
-            print STDERR $d_err->getline;
-        }
+    my $d_status = $? >> 8;
+    while (!$d_err->eof) {
+        my $error = $d_err->getline;
+        chomp $error;
+        #diag "DTrace error: $error";
     }
 
-    return ($status, $output || '');
+    return ($t_status, $d_status, $output || '');
 }
