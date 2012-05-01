@@ -1,3 +1,6 @@
+libusdt
+=======
+
 This is "libusdt", an extraction into a C library of the common parts
 of ruby-dtrace[1], perl-dtrace[2] and node-dtrace-provider[3].
 
@@ -19,7 +22,8 @@ the provider and indicating these stub functions as the tracepoints,
 then submitted to the kernel, creating the provider. The API then
 exposes the stubs, through which the probes may be fired.
 
-Status:
+Status
+------
 
 The implementation here works as shown in test_usdt.c on Mac OS X,
 i386 and x86_64, on Solaris-like systems, i386 and x86_64 and on
@@ -40,7 +44,22 @@ first four arguments work reliably. See:
 
   http://wiki.freebsd.org/DTraceTODO
 
-To do:
+See Also
+--------
+
+There are experimental Lua bindings available, which are a thin
+layer over this library, and should serve as an example of typical use
+as a dynamic language extension:
+
+  https://github.com/chrisa/lua-usdt
+
+There are also Ruby bindings by Kevin Chan, replacing the provider
+implementation in ruby-dtrace:
+
+  https://github.com/kevinykchan/ruby-usdt
+
+To Do
+-----
 
 Platform support:
 
@@ -53,7 +72,10 @@ Features:
  * add a "low level" API, allowing alternative provision of
    tracepoints for closer integration with language VMs. 
 
+ * support structured types, with close integration with the host
+   DTrace system.
+
+
 [1] https://github.com/chrisa/ruby-dtrace
 [2] https://github.com/chrisa/perl-dtrace
 [3] https://github.com/chrisa/node-dtrace-provider
-
