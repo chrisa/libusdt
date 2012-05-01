@@ -35,39 +35,6 @@ usdt_create_provider(const char *name, const char *module)
 }
 
 usdt_probedef_t *
-usdt_create_probe_varargs(const char *func, const char *name, ...)
-{
-        va_list ap;
-        int i;
-        const char *type;
-        usdt_probedef_t *p;
-
-        if ((p = malloc(sizeof *p)) == NULL)
-                return (NULL);
-
-        p->function = strdup(func);
-        p->name = strdup(name);
-
-        va_start(ap, name);
-
-        for (i = 0; i < USDT_ARG_MAX; i++) {
-                if ((type = va_arg(ap, const char *)) != NULL) {
-                        if (strncmp("char *", type, 6)) {
-                                p->types[i] = USDT_ARGTYPE_STRING;
-                        }
-                        if (strncmp("int", type, 3)) {
-                                p->types[i] = USDT_ARGTYPE_INTEGER;
-                        }
-                }
-                else {
-                        p->types[i] = USDT_ARGTYPE_NONE;
-                }
-        }
-
-        return (p);
-}
-
-usdt_probedef_t *
 usdt_create_probe(const char *func, const char *name, size_t argc, const char **types)
 {
         int i;

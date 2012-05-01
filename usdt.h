@@ -37,7 +37,6 @@ typedef struct usdt_probedef {
         struct usdt_probedef *next;
 } usdt_probedef_t;
 
-usdt_probedef_t *usdt_create_probe_varargs(const char *func, const char *name, ...);
 usdt_probedef_t *usdt_create_probe(const char *func, const char *name,
                                    size_t argc, const char **types);
 
