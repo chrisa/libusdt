@@ -76,5 +76,10 @@ int main(int argc, char **argv) {
 
         fire_probe(probedef, (argc-3), (void **)args);
 
+        if ((usdt_provider_disable(provider)) < 0) {
+                fprintf(stderr, "unable to disable provider: %s\n", usdt_errstr(provider));
+                exit (1);
+        }
+
         return 0;
 }

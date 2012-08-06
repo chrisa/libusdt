@@ -80,6 +80,7 @@ usdt_dof_file_t *usdt_dof_file_init(usdt_provider_t *provider, size_t size);
 void usdt_dof_file_append_section(usdt_dof_file_t *file, usdt_dof_section_t *section);
 void usdt_dof_file_generate(usdt_dof_file_t *file, usdt_strtab_t *strtab);
 int usdt_dof_file_load(usdt_dof_file_t *file, const char *module);
+int usdt_dof_file_unload(usdt_dof_file_t *file);
 
 int usdt_dof_probes_sect(usdt_dof_section_t *probes,
                          usdt_provider_t *provider, usdt_strtab_t *strtab);

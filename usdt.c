@@ -15,7 +15,8 @@ char *usdt_errors[] = {
   "failed to allocate page-aligned memory",
   "no probes defined",
   "failed to load DOF: %s",
-  "provider is already enabled"
+  "provider is already enabled",
+  "failed to unload DOF: %s"
 };
 
 usdt_provider_t *
@@ -139,6 +140,23 @@ usdt_provider_enable(usdt_provider_t *provider)
         }
 
         provider->enabled = 1;
+        provider->file = file;
+
+        return (0);
+}
+
+int
+usdt_provider_disable(usdt_provider_t *provider)
+{
+        if ((usdt_dof_file_unload((usdt_dof_file_t *)provider->file)) < 0) {
+                usdt_error(provider, USDT_ERROR_UNLOADDOF, strerror(errno));
+                return (-1);
+        }
+
+        /* free(file) */
+        provider->file = NULL;
+        provider->enabled = 0;
+
         return (0);
 }
 
