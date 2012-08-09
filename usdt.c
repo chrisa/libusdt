@@ -148,6 +148,9 @@ usdt_provider_enable(usdt_provider_t *provider)
 int
 usdt_provider_disable(usdt_provider_t *provider)
 {
+        if (provider->enabled == 0)
+                return (0);
+
         if ((usdt_dof_file_unload((usdt_dof_file_t *)provider->file)) < 0) {
                 usdt_error(provider, USDT_ERROR_UNLOADDOF, strerror(errno));
                 return (-1);
