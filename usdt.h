@@ -52,6 +52,7 @@ typedef struct usdt_provider {
 
 usdt_provider_t *usdt_create_provider(const char *name, const char *module);
 void usdt_provider_add_probe(usdt_provider_t *provider, usdt_probedef_t *probedef);
+void usdt_provider_remove_probe(usdt_provider_t *provider, usdt_probedef_t *probedef);
 int usdt_provider_enable(usdt_provider_t *provider);
 int usdt_provider_disable(usdt_provider_t *provider);
 

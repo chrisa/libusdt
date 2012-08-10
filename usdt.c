@@ -76,6 +76,27 @@ usdt_provider_add_probe(usdt_provider_t *provider, usdt_probedef_t *probedef)
         }
 }
 
+void
+usdt_provider_remove_probe(usdt_provider_t *provider, usdt_probedef_t *probedef)
+{
+        usdt_probedef_t *pd, *prev_pd = NULL;
+
+        if (provider->probedefs == NULL)
+                return;
+
+        for (pd = provider->probedefs; (pd != NULL); prev_pd = pd, pd = pd->next) {
+                if ((strcmp(pd->name, probedef->name) == 0)) {
+                        if (prev_pd == NULL)
+                                provider->probedefs = pd->next;
+                        else
+                                prev_pd->next = pd->next;
+
+                        /* free(probedef); */
+                        return;
+                }
+        }
+}
+
 int
 usdt_provider_enable(usdt_provider_t *provider)
 {
