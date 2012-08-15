@@ -20,6 +20,7 @@ usdt_dof_probes_sect(usdt_dof_section_t *probes,
         for (pd = provider->probedefs; pd != NULL; pd = pd->next) {
                 argc = 0;
                 argv = 0;
+                type = 0;
 
                 for (i = 0; i < pd->argc; i++) {
                         switch(pd->types[i]) {
