@@ -18,6 +18,14 @@ UNAME=$(shell uname)
 ifeq ($(UNAME), SunOS)
 PATH +=:/usr/perl5/5.10.0/bin
 CFLAGS +=-fPIC
+ifeq ($(ARCH), i86pc)
+ARCH=$(shell isainfo -k)
+ifeq ($(ARCH), amd64)
+ARCH=x86_64
+else
+ARCH=i386
+endif
+endif
 ifeq ($(ARCH), x86_64)
 CFLAGS += -m64
 endif
