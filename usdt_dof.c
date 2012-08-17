@@ -112,11 +112,11 @@ usdt_strtab_add(usdt_strtab_t *strtab, const char *string)
         strtab->strindex += (length + 1);
 
         if ((strtab->data = realloc(strtab->data, strtab->strindex)) == NULL)
-                return (-1);
+                return (0);
 
         memcpy((char *) (strtab->data + index), (char *)string, length + 1);
         strtab->size = index + length + 1;
 
-        return index;
+        return (index);
 }
 

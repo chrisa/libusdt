@@ -107,7 +107,7 @@ usdt_provider_enable(usdt_provider_t *provider)
                 return (-1);
         }
 
-        if ((usdt_strtab_add(&strtab, provider->name)) < 0) {
+        if ((usdt_strtab_add(&strtab, provider->name)) == 0) {
                 usdt_error(provider, USDT_ERROR_MALLOC);
                 return (-1);
         }
