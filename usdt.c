@@ -17,7 +17,8 @@ char *usdt_errors[] = {
   "failed to load DOF: %s",
   "provider is already enabled",
   "failed to unload DOF: %s",
-  "probe named %s:%s:%s:%s already exists"
+  "probe named %s:%s:%s:%s already exists",
+  "failed to remove probe %s:%s:%s:%s"
 };
 
 usdt_provider_t *
@@ -91,13 +92,15 @@ usdt_provider_add_probe(usdt_provider_t *provider, usdt_probedef_t *probedef)
         return (0);
 }
 
-void
+int
 usdt_provider_remove_probe(usdt_provider_t *provider, usdt_probedef_t *probedef)
 {
         usdt_probedef_t *pd, *prev_pd = NULL;
 
-        if (provider->probedefs == NULL)
-                return;
+        if (provider->probedefs == NULL) {
+                usdt_error(provider, USDT_ERROR_NOPROBES);
+                return (-1);
+        }
 
         for (pd = provider->probedefs; (pd != NULL);
              prev_pd = pd, pd = pd->next) {
@@ -111,9 +114,14 @@ usdt_provider_remove_probe(usdt_provider_t *provider, usdt_probedef_t *probedef)
                                 prev_pd->next = pd->next;
 
                         /* free(probedef); */
-                        return;
+                        return (0);
                 }
         }
+
+        usdt_error(provider, USDT_ERROR_REMOVE_PROBE,
+                   provider->name, provider->module,
+                   probedef->function, probedef->name);
+        return (-1);
 }
 
 int
