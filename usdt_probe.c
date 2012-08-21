@@ -25,7 +25,7 @@ usdt_is_enabled_offset(usdt_probe_t *probe, char *dof)
 {
         uint32_t offset;
 #ifdef __x86_64__
-        offset = ((uint64_t) probe->isenabled_addr - (uint64_t) dof + 2);
+        offset = ((uint64_t) probe->isenabled_addr - (uint64_t) dof + 6);
 #elif __i386__
         offset = ((uint32_t) probe->isenabled_addr - (uint32_t) dof + 6);
 #else
@@ -39,13 +39,13 @@ usdt_is_enabled_offset(usdt_probe_t *probe, char *dof)
 uint32_t
 usdt_probe_offset(usdt_probe_t *probe, char *dof, uint8_t argc)
 {
-        return (12);
+        return (16);
 }
 
 uint32_t
 usdt_is_enabled_offset(usdt_probe_t *probe, char *dof)
 {
-        return (6);
+        return (8);
 }
 
 #endif

@@ -1,9 +1,21 @@
-UNAME=$(shell uname)
-ARCH=$(shell uname -m)
-
+# MAC_BUILD - set this to "universal" to build a 2-way fat library 
+# CFLAGS - to taste
+# CC - C compiler, cc, gcc or clang
+#
 MAC_BUILD=universal
-CFLAGS= -g -O0 -Wall -Werror
+CFLAGS= #-Wall -pedantic -O2
+ifndef CC
 CC=cc
+endif
+
+# if ARCH set, disable universal build on the mac
+ifdef ARCH
+MAC_BUILD=
+else
+ARCH=$(shell uname -m)
+endif
+
+UNAME=$(shell uname)
 
 ifeq ($(UNAME), SunOS)
 PATH +=:/usr/perl5/5.10.0/bin

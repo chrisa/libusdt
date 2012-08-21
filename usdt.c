@@ -87,7 +87,7 @@ usdt_provider_enable(usdt_provider_t *provider)
 
         if (provider->enabled == 1) {
                 usdt_error(provider, USDT_ERROR_ALREADYENABLED);
-                return (0); // not fatal
+                return (0); /* not fatal */
         }
 
         if (provider->probedefs == NULL) {

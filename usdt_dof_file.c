@@ -129,7 +129,8 @@ static size_t
 add_section(usdt_dof_file_t *file, size_t offset, usdt_dof_section_t *section)
 {
         if (section->pad > 0) {
-                memcpy((file->dof + offset), "\0", section->pad);
+                /* maximum padding required is 7 */
+                memcpy((file->dof + offset), "\0\0\0\0\0\0\0", section->pad);
                 offset += section->pad;
         }
 
