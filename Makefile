@@ -3,8 +3,10 @@
 # CC - C compiler, cc, gcc or clang
 #
 MAC_BUILD=universal
-CFLAGS=-Wall -Werror -O2
+CFLAGS= #-Wall -pedantic -O2
+ifndef CC
 CC=cc
+endif
 
 # if ARCH set, disable universal build on the mac
 ifdef ARCH

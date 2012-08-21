@@ -46,7 +46,7 @@ usdt_dof_probes_sect(usdt_dof_section_t *probes,
 
 #ifdef __x86_64__
                 p.dofpr_addr     = (uint64_t) pd->probe->isenabled_addr;
-#elif __i386__
+#elif __i386__ || __i386
                 p.dofpr_addr     = (uint32_t) pd->probe->isenabled_addr;
 #else
 #error "only x86_64 and i386 supported"
@@ -62,6 +62,8 @@ usdt_dof_probes_sect(usdt_dof_section_t *probes,
                 p.dofpr_noffs    = 1;
                 p.dofpr_enoffidx = offidx;
                 p.dofpr_nenoffs  = 1;
+                p.dofpr_pad1     = 0;
+                p.dofpr_pad2     = 0;
 
                 usdt_dof_section_add_data(probes, &p, sizeof(dof_probe_t));
                 probes->entsize = sizeof(dof_probe_t);
@@ -151,7 +153,7 @@ usdt_dof_provider_sect(usdt_dof_section_t *provider_s, usdt_provider_t *provider
         p.dofpv_prargs   = 2;
         p.dofpv_proffs   = 3;
         p.dofpv_prenoffs = 4;
-        p.dofpv_name     = 1; // provider name always first strtab entry.
+        p.dofpv_name     = 1; /* provider name always first strtab entry. */
 
         /*
          * Stability is something of a hack. Everything is marked *

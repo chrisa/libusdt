@@ -11,9 +11,8 @@
 static void
 fire_probe(usdt_probedef_t *probedef, int argc, void **argv)
 {
-        if (usdt_is_enabled(probedef->probe)) {
+        if (usdt_is_enabled(probedef->probe))
                 usdt_fire_probe(probedef->probe, argc, argv);
-        }
 }
 
 int main(int argc, char **argv) {
@@ -21,7 +20,7 @@ int main(int argc, char **argv) {
         usdt_probedef_t *probedef;
         char char_argv[USDT_ARG_MAX];
         int int_argv[USDT_ARG_MAX * 2];
-        void **args;
+        void **args = NULL;
         int i;
         char buf[255];
 

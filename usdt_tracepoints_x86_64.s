@@ -24,6 +24,7 @@ usdt_tracepoint_isenabled:
 _usdt_tracepoint_isenabled:
         pushq   %rbp
         movq    %rsp, %rbp
+        addq    $1, %rax
         xorq    %rax, %rax
         nop
         nop
