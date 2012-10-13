@@ -15,7 +15,10 @@ char *usdt_errors[] = {
   "failed to allocate page-aligned memory",
   "no probes defined",
   "failed to load DOF: %s",
-  "provider is already enabled"
+  "provider is already enabled",
+  "failed to unload DOF: %s",
+  "probe named %s:%s:%s:%s already exists",
+  "failed to remove probe %s:%s:%s:%s"
 };
 
 usdt_provider_t *
@@ -61,10 +64,22 @@ usdt_create_probe(const char *func, const char *name, size_t argc, const char **
         return (p);
 }
 
-void
+int
 usdt_provider_add_probe(usdt_provider_t *provider, usdt_probedef_t *probedef)
 {
         usdt_probedef_t *pd;
+
+        if (provider->probedefs != NULL) {
+                for (pd = provider->probedefs; (pd != NULL); pd = pd->next) {
+                if ((strcmp(pd->name, probedef->name) == 0) &&
+                    (strcmp(pd->function, probedef->function) == 0)) {
+                                usdt_error(provider, USDT_ERROR_DUP_PROBE,
+                                           provider->name, provider->module,
+                                           probedef->function, probedef->name);
+                                return (-1);
+                        }
+                }
+        }
 
         probedef->next = NULL;
         if (provider->probedefs == NULL)
@@ -73,6 +88,40 @@ usdt_provider_add_probe(usdt_provider_t *provider, usdt_probedef_t *probedef)
                 for (pd = provider->probedefs; (pd->next != NULL); pd = pd->next) ;
                 pd->next = probedef;
         }
+
+        return (0);
+}
+
+int
+usdt_provider_remove_probe(usdt_provider_t *provider, usdt_probedef_t *probedef)
+{
+        usdt_probedef_t *pd, *prev_pd = NULL;
+
+        if (provider->probedefs == NULL) {
+                usdt_error(provider, USDT_ERROR_NOPROBES);
+                return (-1);
+        }
+
+        for (pd = provider->probedefs; (pd != NULL);
+             prev_pd = pd, pd = pd->next) {
+
+                if ((strcmp(pd->name, probedef->name) == 0) &&
+                    (strcmp(pd->function, probedef->function) == 0)) {
+
+                        if (prev_pd == NULL)
+                                provider->probedefs = pd->next;
+                        else
+                                prev_pd->next = pd->next;
+
+                        /* free(probedef); */
+                        return (0);
+                }
+        }
+
+        usdt_error(provider, USDT_ERROR_REMOVE_PROBE,
+                   provider->name, provider->module,
+                   probedef->function, probedef->name);
+        return (-1);
 }
 
 int
@@ -139,6 +188,26 @@ usdt_provider_enable(usdt_provider_t *provider)
         }
 
         provider->enabled = 1;
+        provider->file = file;
+
+        return (0);
+}
+
+int
+usdt_provider_disable(usdt_provider_t *provider)
+{
+        if (provider->enabled == 0)
+                return (0);
+
+        if ((usdt_dof_file_unload((usdt_dof_file_t *)provider->file)) < 0) {
+                usdt_error(provider, USDT_ERROR_UNLOADDOF, strerror(errno));
+                return (-1);
+        }
+
+        /* free(file) */
+        provider->file = NULL;
+        provider->enabled = 0;
+
         return (0);
 }
 

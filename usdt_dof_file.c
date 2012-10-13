@@ -47,7 +47,10 @@ load_dof(int fd, dof_helper_t *dh)
         val = (user_addr_t)(unsigned long)ioctlData;
         ret = ioctl(fd, DTRACEHIOC_ADDDOF, &val);
 
-        return ret;
+        if (ret < 0)
+                return ret;
+
+        return (int)(ioctlData->dofiod_helpers[0].dofhp_dof);
 }
 
 #else /* Solaris */
@@ -136,6 +139,25 @@ add_section(usdt_dof_file_t *file, size_t offset, usdt_dof_section_t *section)
 
         memcpy((file->dof + offset), section->data, section->size);
         return (offset + section->size);
+}
+
+int
+usdt_dof_file_unload(usdt_dof_file_t *file)
+{
+        int fd, ret;
+
+        if ((fd = open(helper, O_RDWR)) < 0)
+                return (-1);
+
+        ret = ioctl(fd, DTRACEHIOC_REMOVE, file->gen);
+
+        if (ret < 0)
+                return (-1);
+
+        if ((close(fd)) < 0)
+                return (-1);
+
+        return (0);
 }
 
 int

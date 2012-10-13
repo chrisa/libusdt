@@ -53,16 +53,20 @@ usdt_is_enabled_offset(usdt_probe_t *probe, char *dof)
 int
 usdt_create_tracepoints(usdt_probe_t *probe)
 {
+        size_t size;
+
         /* ensure that the tracepoints will fit the heap we're allocating */
-        assert((usdt_tracepoint_end - usdt_tracepoint_isenabled) < FUNC_SIZE);
+        size = ((char *)usdt_tracepoint_end - (char *)usdt_tracepoint_isenabled);
+        assert(size < FUNC_SIZE);
 
-        if ((probe->isenabled_addr = valloc(FUNC_SIZE)) == NULL) {
+        if ((probe->isenabled_addr = (int (*)())valloc(FUNC_SIZE)) == NULL)
                 return (-1);
-        }
-        probe->probe_addr = probe->isenabled_addr +
-                (usdt_tracepoint_probe - usdt_tracepoint_isenabled);
 
-        memcpy(probe->isenabled_addr, usdt_tracepoint_isenabled, FUNC_SIZE);
+        size = ((char *)usdt_tracepoint_probe - (char *)usdt_tracepoint_isenabled);
+        probe->probe_addr = (char *)probe->isenabled_addr + size;
+
+        memcpy((void *)probe->isenabled_addr,
+               (const void *)usdt_tracepoint_isenabled, FUNC_SIZE);
         mprotect((void *)probe->isenabled_addr, FUNC_SIZE,
                  PROT_READ | PROT_WRITE | PROT_EXEC);
 
