@@ -83,7 +83,7 @@ sub run_dtrace {
     my $t_pid = open3($t_wtr, $t_rdr, $t_err, @t_cmd);
     my $enabled = $t_rdr->getline;
 
-    my @d_cmd = ('dtrace', '-p', $t_pid, '-n', $d);
+    my @d_cmd = ('/usr/sbin/dtrace', '-p', $t_pid, '-n', $d);
 
     #diag(join(' ', @d_cmd));
     my $d_pid = open3($d_wtr, $d_rdr, $d_err, @d_cmd);
