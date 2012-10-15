@@ -1,39 +1,38 @@
+CC = gcc
+CFLAGS = -O2
+
 # MAC_BUILD - set this to "universal" to build a 2-way fat library 
-# CFLAGS - to taste
-# CC - C compiler, cc, gcc or clang
-#
-MAC_BUILD=universal
-CFLAGS= #-Wall -pedantic -O2
-ifndef CC
-CC=cc
-endif
+MAC_BUILD = universal
 
 # if ARCH set, disable universal build on the mac
 ifdef ARCH
-MAC_BUILD=
+MAC_BUILD =
 else
-ARCH=$(shell uname -m)
+ARCH = $(shell uname -m)
 endif
 
-UNAME=$(shell uname)
+UNAME = $(shell uname -s)
 
 ifeq ($(UNAME), SunOS)
-PATH +=:/usr/perl5/5.10.0/bin
-CFLAGS +=-fPIC
+RANLIB=granlib
+PATH +=:/usr/perl5/5.10.0/bin:/usr/perl5/5.12/bin
+CFLAGS += -fPIC
+
 ifeq ($(ARCH), i86pc)
-ARCH=$(shell isainfo -k)
+ARCH = $(shell isainfo -k)
 ifeq ($(ARCH), amd64)
-ARCH=x86_64
+ARCH = x86_64
 else
-ARCH=i386
+ARCH = i386
 endif
-endif
+endif 
 ifeq ($(ARCH), x86_64)
 CFLAGS += -m64
 endif
 endif
 
 ifeq ($(UNAME), FreeBSD)
+RANLIB=ranlib
 CFLAGS += -Wno-error=unknown-pragmas -I/usr/src/sys/cddl/compat/opensolaris -I/usr/src/sys/cddl/contrib/opensolaris/uts/common
 ifeq ($(ARCH), i386)
 CFLAGS += -m32
@@ -41,8 +40,9 @@ endif
 endif
 
 ifeq ($(UNAME), Darwin)
+RANLIB=ranlib
 ifeq ($(MAC_BUILD), universal)
-CFLAGS += -arch i386 -arch x86_64 
+CFLAGS += -arch i386 -arch x86_64
 else
 CFLAGS += -arch $(ARCH)
 endif
@@ -58,8 +58,8 @@ all: libusdt.a
 
 libusdt.a: $(objects) $(headers)
 	rm -f libusdt.a
-	ar cru libusdt.a $(objects) 
-	ranlib libusdt.a
+	$(AR) cru libusdt.a $(objects) 
+	$(RANLIB) libusdt.a
 
 # Tracepoints build. 
 #
@@ -74,10 +74,10 @@ ifeq ($(UNAME), Darwin)
 ifeq ($(MAC_BUILD), universal)
 
 usdt_tracepoints_i386.o: usdt_tracepoints_i386.s
-	as -arch i386 -o usdt_tracepoints_i386.o usdt_tracepoints_i386.s
+	$(CC) -arch i386 -o usdt_tracepoints_i386.o -c usdt_tracepoints_i386.s
 
 usdt_tracepoints_x86_64.o: usdt_tracepoints_x86_64.s
-	as -arch x86_64 -o usdt_tracepoints_x86_64.o usdt_tracepoints_x86_64.s
+	$(CC) -arch x86_64 -o usdt_tracepoints_x86_64.o -c usdt_tracepoints_x86_64.s
 
 usdt_tracepoints.o: usdt_tracepoints_i386.o usdt_tracepoints_x86_64.o
 	lipo -create -output usdt_tracepoints.o usdt_tracepoints_i386.o \
@@ -85,18 +85,18 @@ usdt_tracepoints.o: usdt_tracepoints_i386.o usdt_tracepoints_x86_64.o
 
 else # Darwin, not universal
 usdt_tracepoints.o: usdt_tracepoints_$(ARCH).s
-	as -arch $(ARCH) -o usdt_tracepoints.o usdt_tracepoints_$(ARCH).s
+	$(CC) -arch $(ARCH) -o usdt_tracepoints.o -c usdt_tracepoints_$(ARCH).s
 endif
 
 else # not Darwin; FreeBSD and Illumos
 
 ifeq ($(ARCH), x86_64)
 usdt_tracepoints.o: usdt_tracepoints_x86_64.s
-	as --64 -o usdt_tracepoints.o usdt_tracepoints_x86_64.s
+	$(CC) $(CFLAGS) -o usdt_tracepoints.o -c usdt_tracepoints_x86_64.s
 endif
 ifeq ($(ARCH), i386)
 usdt_tracepoints.o: usdt_tracepoints_i386.s
-	as --32 -o usdt_tracepoints.o usdt_tracepoints_i386.s
+	$(CC) $(CFLAGS) -o usdt_tracepoints.o -c usdt_tracepoints_i386.s
 endif
 
 endif
