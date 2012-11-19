@@ -268,3 +268,10 @@ usdt_dof_file_init(usdt_provider_t *provider, size_t size)
 
         return (file);
 }
+
+void
+usdt_dof_file_free(usdt_dof_file_t *file)
+{
+        free(file->dof);
+        free(file);
+}

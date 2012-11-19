@@ -38,6 +38,7 @@ typedef struct usdt_probedef {
         usdt_argtype_t types[USDT_ARG_MAX];
         struct usdt_probe *probe;
         struct usdt_probedef *next;
+        int refcnt;
 } usdt_probedef_t;
 
 usdt_probedef_t *usdt_create_probe(const char *func, const char *name,

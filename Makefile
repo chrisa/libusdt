@@ -108,10 +108,14 @@ clean:
 	rm -f test_usdt
 	rm -f test_usdt32
 	rm -f test_usdt64
+	rm -f test_mem_usage
 
 .PHONY: clean test
 
 # testing
+
+test_mem_usage: libusdt.a test_mem_usage.o
+	$(CC) $(CFLAGS) -o test_mem_usage test_mem_usage.o libusdt.a 
 
 ifeq ($(UNAME), Darwin)
 ifeq ($(MAC_BUILD), universal)

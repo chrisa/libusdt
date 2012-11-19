@@ -79,6 +79,12 @@ usdt_dof_section_init(usdt_dof_section_t *section, uint32_t type, dof_secidx_t i
         return (0);
 }
 
+void
+usdt_dof_section_free(usdt_dof_section_t *section)
+{
+        free(section->data);
+}
+
 int
 usdt_strtab_init(usdt_strtab_t *strtab, dof_secidx_t index)
 {
