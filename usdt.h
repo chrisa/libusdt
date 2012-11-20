@@ -43,6 +43,7 @@ typedef struct usdt_probedef {
 
 usdt_probedef_t *usdt_create_probe(const char *func, const char *name,
                                    size_t argc, const char **types);
+void usdt_probe_release(usdt_probedef_t *probedef);
 
 typedef struct usdt_provider {
         const char *name;
@@ -58,6 +59,7 @@ int usdt_provider_add_probe(usdt_provider_t *provider, usdt_probedef_t *probedef
 int usdt_provider_remove_probe(usdt_provider_t *provider, usdt_probedef_t *probedef);
 int usdt_provider_enable(usdt_provider_t *provider);
 int usdt_provider_disable(usdt_provider_t *provider);
+void usdt_provider_free(usdt_provider_t *provider);
 
 void usdt_error(usdt_provider_t *provider, usdt_error_t error, ...);
 char *usdt_errstr(usdt_provider_t *provider);
