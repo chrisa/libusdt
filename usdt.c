@@ -227,8 +227,6 @@ usdt_provider_enable(usdt_provider_t *provider)
 int
 usdt_provider_disable(usdt_provider_t *provider)
 {
-        usdt_probedef_t *pd;
-
         if (provider->enabled == 0)
                 return (0);
 
@@ -236,9 +234,6 @@ usdt_provider_disable(usdt_provider_t *provider)
                 usdt_error(provider, USDT_ERROR_UNLOADDOF, strerror(errno));
                 return (-1);
         }
-
-        for (pd = provider->probedefs; pd != NULL; pd = pd->next)
-                free_probedef(pd);
 
         usdt_dof_file_free(provider->file);
         provider->file = NULL;
@@ -250,6 +245,13 @@ usdt_provider_disable(usdt_provider_t *provider)
 void
 usdt_provider_free(usdt_provider_t *provider)
 {
+        usdt_probedef_t *pd, *next;
+
+        for (pd = provider->probedefs; pd != NULL; pd = next) {
+                next = pd->next;
+                free_probedef(pd);
+        }
+
         free((char *)provider->name);
         free((char *)provider->module);
         free(provider);
