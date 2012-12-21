@@ -24,6 +24,8 @@ char *usdt_errors[] = {
 static void
 free_probedef(usdt_probedef_t *pd)
 {
+        int i;
+
         switch (pd->refcnt) {
         case 1:
                 free((char *)pd->function);
@@ -32,6 +34,8 @@ free_probedef(usdt_probedef_t *pd)
                         free(pd->probe->isenabled_addr);
                         free(pd->probe);
                 }
+                for (i = 0; i < pd->argc; i++)
+                        free(pd->types[i]);
                 free(pd);
                 break;
         case 2:
@@ -76,12 +80,8 @@ usdt_create_probe(const char *func, const char *name, size_t argc, const char **
         p->argc = argc;
         p->probe = NULL;
 
-        for (i = 0; i < argc; i++) {
-                if (strncmp("char *", types[i], 6) == 0)
-                        p->types[i] = USDT_ARGTYPE_STRING;
-                if (strncmp("int", types[i], 3) == 0)
-                        p->types[i] = USDT_ARGTYPE_INTEGER;
-        }
+        for (i = 0; i < argc; i++)
+                p->types[i] = strdup(types[i]);
 
         return (p);
 }

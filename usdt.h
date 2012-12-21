@@ -5,11 +5,6 @@
 #include <stdint.h>
 #include <unistd.h>
 
-typedef uint8_t usdt_argtype_t;
-#define USDT_ARGTYPE_NONE    0
-#define USDT_ARGTYPE_STRING  1
-#define USDT_ARGTYPE_INTEGER 2
-
 #define USDT_ARG_MAX 32
 
 typedef enum usdt_error {
@@ -35,7 +30,7 @@ typedef struct usdt_probedef {
         const char *name;
         const char *function;
         size_t argc;
-        usdt_argtype_t types[USDT_ARG_MAX];
+        char *types[USDT_ARG_MAX];
         struct usdt_probe *probe;
         struct usdt_probedef *next;
         int refcnt;
