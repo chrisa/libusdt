@@ -17,7 +17,6 @@ ifeq ($(UNAME), SunOS)
 RANLIB=/bin/true
 PATH +=:/usr/perl5/5.10.0/bin:/usr/perl5/5.12/bin
 CFLAGS += -fPIC
-
 ifeq ($(ARCH), i86pc)
 ARCH = $(shell isainfo -k)
 ifeq ($(ARCH), amd64)
@@ -36,6 +35,9 @@ RANLIB=ranlib
 CFLAGS += -Wno-error=unknown-pragmas -I/usr/src/sys/cddl/compat/opensolaris -I/usr/src/sys/cddl/contrib/opensolaris/uts/common
 ifeq ($(ARCH), i386)
 CFLAGS += -m32
+endif
+ifeq ($(ARCH), amd64)
+ARCH = x86_64
 endif
 endif
 

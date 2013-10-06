@@ -53,7 +53,7 @@ load_dof(int fd, dof_helper_t *dh)
         return (int)(ioctlData->dofiod_helpers[0].dofhp_dof);
 }
 
-#else /* Solaris */
+#else /* Solaris and FreeBSD */
 
 /* ignore Sol10 GA ... */
 static const char *helper = "/dev/dtrace/helper";
@@ -61,7 +61,15 @@ static const char *helper = "/dev/dtrace/helper";
 static int
 load_dof(int fd, dof_helper_t *dh)
 {
-        return ioctl(fd, DTRACEHIOC_ADDDOF, dh);
+        int ret;
+
+        ret = ioctl(fd, DTRACEHIOC_ADDDOF, dh);
+
+#ifdef __FreeBSD__
+        if (ret != -1)
+                ret = dh->gen;
+#endif
+        return ret;
 }
 
 #endif
@@ -149,7 +157,11 @@ usdt_dof_file_unload(usdt_dof_file_t *file)
         if ((fd = open(helper, O_RDWR)) < 0)
                 return (-1);
 
+#ifdef __FreeBSD__
+        ret = ioctl(fd, DTRACEHIOC_REMOVE, &file->gen);
+#else
         ret = ioctl(fd, DTRACEHIOC_REMOVE, file->gen);
+#endif
 
         if (ret < 0)
                 return (-1);
