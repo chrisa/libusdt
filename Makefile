@@ -33,6 +33,7 @@ endif
 ifeq ($(UNAME), FreeBSD)
 RANLIB=ranlib
 CFLAGS += -Wno-error=unknown-pragmas -I/usr/src/sys/cddl/compat/opensolaris -I/usr/src/sys/cddl/contrib/opensolaris/uts/common
+CFLAGS += -fPIC
 ifeq ($(ARCH), i386)
 CFLAGS += -m32
 endif
