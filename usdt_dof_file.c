@@ -4,8 +4,7 @@
 
 #include "usdt_internal.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <sys/ioctl.h>
 
 static uint8_t
 dof_version(uint8_t header_version)

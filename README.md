@@ -27,7 +27,7 @@ Status
 
 The implementation here works as shown in test_usdt.c on Mac OS X,
 i386 and x86_64, on Solaris-like systems, i386 and x86_64 and on
-FreeBSD, x86_64 only (so far).
+FreeBSD and Oracle Linux, x86_64 only.
 
 Is-enabled probes are supported and exposed in the API.
 

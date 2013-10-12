@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O2
+CFLAGS = -O2 -Wall
 
 # MAC_BUILD - set this to "universal" to build a 2-way fat library 
 MAC_BUILD = universal
@@ -12,6 +12,11 @@ ARCH = $(shell uname -m)
 endif
 
 UNAME = $(shell uname -s)
+
+ifeq ($(UNAME), Linux)
+RANLIB=ranlib
+CFLAGS+=-D_GNU_SOURCE -fPIC
+endif
 
 ifeq ($(UNAME), SunOS)
 RANLIB=/bin/true

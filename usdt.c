@@ -4,10 +4,8 @@
 
 #include "usdt_internal.h"
 
-#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <errno.h>
 #include <stdio.h>
 
 char *usdt_errors[] = {
@@ -31,7 +29,7 @@ free_probedef(usdt_probedef_t *pd)
                 free((char *)pd->function);
                 free((char *)pd->name);
                 if (pd->probe) {
-                        free(pd->probe->isenabled_addr);
+                        usdt_free_tracepoints(pd->probe);
                         free(pd->probe);
                 }
                 for (i = 0; i < pd->argc; i++)
@@ -209,7 +207,7 @@ usdt_provider_enable(usdt_provider_t *provider)
 
         usdt_dof_file_generate(file, &strtab);
 
-        usdt_dof_section_free(&strtab);
+        usdt_dof_section_free((usdt_dof_section_t *)&strtab);
         for (i = 0; i < 5; i++)
                 usdt_dof_section_free(&sects[i]);
 

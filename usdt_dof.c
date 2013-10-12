@@ -4,8 +4,6 @@
 
 #include "usdt_internal.h"
 
-#include <stdlib.h>
-
 int
 usdt_dof_section_add_data(usdt_dof_section_t *section, void *data, size_t length)
 {

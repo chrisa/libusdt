@@ -17,7 +17,7 @@ if (scalar @ARGV == 1) {
     $arch = $ARGV[0];
 }
 
-my $user_t = ($^O eq 'solaris' || $^O eq 'freebsd') ? 'uintptr_t' : 'user_addr_t';
+my $user_t = ($^O eq 'darwin') ? 'user_addr_t' : 'uintptr_t';
 
 run_tests('c', 'A');
 run_tests('i', 1);
