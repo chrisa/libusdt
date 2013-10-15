@@ -225,6 +225,8 @@ usdt_provider_enable(usdt_provider_t *provider)
 int
 usdt_provider_disable(usdt_provider_t *provider)
 {
+        usdt_probedef_t *pd;
+
         if (provider->enabled == 0)
                 return (0);
 
@@ -235,6 +237,31 @@ usdt_provider_disable(usdt_provider_t *provider)
 
         usdt_dof_file_free(provider->file);
         provider->file = NULL;
+
+        /* We would like to free the tracepoints here too, but OS X
+         * (and to a lesser extent Illumos) struggle with this:
+         *
+         * If a provider is repeatedly disabled and re-enabled, and is
+         * allowed to reuse the same memory for its tracepoints, *and*
+         * there's a DTrace consumer running with enablings for these
+         * probes, tracepoints are not always cleaned up sufficiently
+         * that the newly-created probes work.
+         *
+         * Here, then, we will leak the memory holding the
+         * tracepoints, which serves to stop us reusing the same
+         * memory address for new tracepoints, avoiding the bug.
+         */
+
+        for (pd = provider->probedefs; (pd != NULL); pd = pd->next) {
+                /* may have an as yet never-enabled probe on an
+                   otherwise enabled provider */
+                if (pd->probe) {
+                        /* usdt_free_tracepoints(pd->probe); */
+                        free(pd->probe);
+                        pd->probe = NULL;
+                }
+        }
+
         provider->enabled = 0;
 
         return (0);
