@@ -63,7 +63,7 @@ load_dof(int fd, dof_helper_t *dh)
         int ret;
 
         ret = ioctl(fd, DTRACEHIOC_ADDDOF, dh);
-#if __FreeBSD__ <= 10
+#if defined(__FreeBSD__) && __FreeBSD__ <= 10
 	if (ret != -1)
 	    ret = dh ->gen;
 #endif
