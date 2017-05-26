@@ -32,6 +32,8 @@ endif
 endif 
 ifeq ($(ARCH), x86_64)
 CFLAGS += -m64
+else
+CFLAGS += -m32
 endif
 endif
 
